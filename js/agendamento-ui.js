@@ -12,6 +12,33 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let horarioSelecionado = null;
 
+    /**
+     * Decodifica o token JWT para obter os dados do usuário.
+     * @returns {object|null} - O payload do token ou null se o token for inválido.
+     */
+    const getCurrentUser = () => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            return null;
+        }
+        try {
+            // O payload é a segunda parte do token, decodificada de Base64
+            const payload = JSON.parse(atob(token.split('.')[1]));
+            return payload;
+        } catch (e) {
+            console.error('Erro ao decodificar o token:', e);
+            localStorage.removeItem('token'); // Token inválido, remove
+            return null;
+        }
+    };
+
+    // Preenche o e-mail se o usuário estiver logado
+    const user = getCurrentUser();
+    if (user && user.email) {
+        emailInput.value = user.email;
+        emailInput.disabled = true;
+    }
+
     // --- FUNÇÕES PRINCIPAIS ---
 
     /**
@@ -29,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
         horariosContainer.innerHTML = '<p class="placeholder">Buscando horários...</p>';
 
         try {
-            const response = await fetch(`http://localhost:3000/horarios-disponiveis?profissional_id=${profissionalId}&data=${data}`);
+            const response = await fetch(`http://localhost:3001/horarios-disponiveis?profissional_id=${profissionalId}&data=${data}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -95,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3000/agendamentos', {
+            const response = await fetch('http://localhost:3001/agendamentos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -141,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       * Habilita ou desabilita o botão de submit com base no estado do formulário.
       */
     const atualizarEstadoBotao = () => {
-        const formValido = profissionalSelect.value && dataInput.value && servicoSelect.value && horarioSelecionado;
+        const formValido = profissionalSelect.value && dataInput.value && servicoSelect.value && horarioSelecionado && emailInput.value;
         submitButton.disabled = !formValido;
     };
 

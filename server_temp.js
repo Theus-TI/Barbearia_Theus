@@ -7,8 +7,7 @@ const jwt = require('jsonwebtoken');
 const { criarAgendamento, listarHorariosDisponiveis } = require('./agendamento.js');
 
 const app = express();
-
-const port = process.env.PORT || 3001;
+const port = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'seu-segredo-super-secreto-para-desenvolvimento';
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
@@ -108,6 +107,7 @@ app.use(express.static(__dirname));
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, 'index.html'));
 });
+
 
 // --- Inicialização do Servidor ---
 app.listen(port, () => {

@@ -4,5 +4,17 @@
     "nome": "Matheus Henrique Ferreira de Souza",
     "email": "usuario@teste.com",
     "senha": "$2b$10$ZKHAJ5vW3PPEgfFLy.DLmuqcQyY1gOf2fA1byjEt.Do1xdaebrfwS"
+  },
+  {
+    "id": 2,
+    "nome": "Samuel",
+    "email": "samuel@teste.com",
+    "senha": "$2b$10$r/ZD/TSgo/PZKaIwU14wy.Mn6ZGV7UgjNofcEaExkBPqUoylldPkG"
+  },
+  {
+    "id": 3,
+    "nome": "Samuel",
+    "email": "samuel1@teste.com",
+    "senha": "$2b$10$OIXmryxPH7avQlS9hMpbSOrl1GlKrTRStdbXTjMvGTUSBM392HOZ6"
   }
 ]
