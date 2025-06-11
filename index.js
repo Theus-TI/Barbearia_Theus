@@ -4,7 +4,7 @@ const path = require('path');
 const url = require('url');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { criarAgendamento, listarAgendamentos, cancelarAgendamento, listarHorariosDisponiveis } = require('./agendamento.js');
+const { getAgendamentos, criarAgendamento } = require('./agendamento.js');
 
 // --- Constantes ---
 const PORT = process.env.PORT || 3000;
@@ -59,16 +59,21 @@ function sendJSONResponse(res, statusCode, data) {
  * @param {http.ServerResponse} res - O objeto da resposta.
  */
 async function serveStaticFile(req, res) {
-    const safePath = path.normalize(req.url).replace(/^(\.\.[\\/\\])+/, '');
-    let filePath = path.join(__dirname, safePath === '/' ? 'index.html' : safePath);
+    const urlPath = req.url === '/' ? '/index.html' : req.url;
+    // Previne ataques de travessia de diretório
+    const safePath = path.normalize(urlPath).replace(/^(\.\.[\\/\\])+/, '');
+    const filePath = path.join(__dirname, safePath);
 
     const contentTypes = {
         '.html': 'text/html',
         '.css': 'text/css',
         '.js': 'application/javascript',
+        '.json': 'application/json',
         '.png': 'image/png',
         '.jpg': 'image/jpeg',
         '.jpeg': 'image/jpeg',
+        '.ico': 'image/x-icon',
+        '.svg': 'image/svg+xml'
     };
 
     try {
@@ -78,27 +83,19 @@ async function serveStaticFile(req, res) {
         res.writeHead(200, { 'Content-Type': contentType });
         res.end(fileContent);
     } catch (error) {
-        if (error.code === 'ENOENT') {
-            // Tenta procurar em subdiretórios comuns se não achar na raiz
-            const subdirs = ['js', 'css', 'img'];
-            for (const subdir of subdirs) {
-                try {
-                    const subPath = path.join(__dirname, subdir, safePath);
-                    const fileContent = await fs.readFile(subPath);
-                    const ext = path.extname(subPath);
-                    const contentType = contentTypes[ext] || 'application/octet-stream';
-                    res.writeHead(200, { 'Content-Type': contentType });
-                    res.end(fileContent);
-                    return;
-                } catch (subError) {
-                    // Continua tentando
-                }
+        // Se o arquivo não existe ou é um diretório, retorna 404
+        if (error.code === 'ENOENT' || error.code === 'EISDIR') {
+            if (!res.headersSent) {
+                res.writeHead(404, { 'Content-Type': 'text/html' });
+                res.end('<h1>404 Not Found</h1>');
             }
-            res.writeHead(404, { 'Content-Type': 'text/html' });
-            res.end('<h1>404 Not Found</h1>');
         } else {
-            res.writeHead(500, { 'Content-Type': 'text/html' });
-            res.end('<h1>500 Internal Server Error</h1>');
+            // Para outros erros (ex: permissão), retorna 500
+            console.error(`Erro ao servir o arquivo ${filePath}:`, error);
+            if (!res.headersSent) {
+                res.writeHead(500, { 'Content-Type': 'text/html' });
+                res.end('<h1>500 Internal Server Error</h1>');
+            }
         }
     }
 }
@@ -154,41 +151,34 @@ const server = http.createServer(async (req, res) => {
             return sendJSONResponse(res, 201, { message: 'Usuário registrado com sucesso!' });
         }
 
-        if (pathname === '/agendamento' && req.method === 'POST') {
+        if (pathname === '/agendamentos' && req.method === 'POST') {
             const token = req.headers.authorization?.split(' ')[1];
             if (!token) {
                 return sendJSONResponse(res, 401, { error: 'Token de autenticação não fornecido.' });
             }
+
             try {
                 const decoded = jwt.verify(token, JWT_SECRET);
                 const userId = decoded.id;
 
-                const dadosAgendamento = await getJSONBody(req);
-                const resultado = await criarAgendamento(dadosAgendamento, userId);
+                const agendamentoData = await getJSONBody(req);
+                
+                const newAgendamento = await criarAgendamento({ ...agendamentoData, userId });
 
-                return sendJSONResponse(res, 201, resultado);
+                return sendJSONResponse(res, 201, newAgendamento);
+
             } catch (error) {
-                 if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
-                    return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado. Faça login novamente.' });
+                if (error instanceof jwt.JsonWebTokenError) {
+                    return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado.' });
                 }
-                // Log do erro no servidor para depuração
-                console.error('Erro ao processar agendamento na rota:', error);
-                // Retorna um erro genérico para o cliente
-                return sendJSONResponse(res, 500, { error: 'Erro interno ao processar o agendamento.' });
+                const statusCode = error.statusCode || 500;
+                const message = error.statusCode ? error.message : 'Erro interno ao criar agendamento.';
+                console.error('Erro ao criar agendamento:', error);
+                return sendJSONResponse(res, statusCode, { error: message });
             }
         }
 
-        if (pathname.startsWith('/agendamentos/') && req.method === 'GET') {
-            const usuario_id = pathname.split('/').pop();
-            const agendamentos = await listarAgendamentos(usuario_id);
-            return sendJSONResponse(res, 200, agendamentos);
-        }
-        
-        if (pathname === '/horarios-disponiveis' && req.method === 'GET') {
-            const { data } = parsedUrl.query;
-            const horarios = await listarHorariosDisponiveis(data);
-            return sendJSONResponse(res, 200, horarios);
-        }
+
 
         // --- Servir Arquivos Estáticos ---
         await serveStaticFile(req, res);

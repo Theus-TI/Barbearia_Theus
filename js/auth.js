@@ -1,66 +1,67 @@
-// Função para criar um novo usuário
-function createUser(name, email, password) {
-    // Verifica se já existe algum usuário com esse email
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const existingUser = users.find(user => user.email === email);
-    
-    if (existingUser) {
-        throw new Error('Este email já está cadastrado');
+// Funções de autenticação para o lado do cliente (frontend)
+
+/**
+ * Decodifica o payload de um token JWT.
+ * @param {string} token - O token JWT.
+ * @returns {object|null} O payload decodificado ou null em caso de erro.
+ */
+function parseJwt(token) {
+    try {
+        const base64Url = token.split('.')[1];
+        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+        }).join(''));
+
+        return JSON.parse(jsonPayload);
+    } catch (e) {
+        console.error("Erro ao decodificar o token:", e);
+        return null;
+    }
+}
+
+/**
+ * Verifica se o usuário está logado checando a existência e validade do token.
+ * @returns {boolean}
+ */
+export function isLoggedIn() {
+    const token = localStorage.getItem('token');
+    if (!token) return false;
+
+    const payload = parseJwt(token);
+    if (!payload || !payload.exp) return false;
+
+    // A data de expiração (exp) está em segundos, enquanto Date.now() está em milissegundos.
+    return Date.now() < payload.exp * 1000;
+}
+
+/**
+ * Retorna os dados do usuário logado a partir do token.
+ * @returns {object|null}
+ */
+export function getCurrentUser() {
+    if (!isLoggedIn()) {
+        return null;
+    }
+    const token = localStorage.getItem('token');
+    const decodedToken = parseJwt(token);
+
+    if (!decodedToken) {
+        return null;
     }
 
-    // Cria um novo usuário com senha criptografada
-    const newUser = {
-        id: Date.now(),
-        name,
-        email,
-        password: btoa(password), // Criptografa a senha
-        createdAt: new Date().toISOString()
+    // Adapta o campo 'nome' do backend para 'name' que o frontend espera.
+    return {
+        id: decodedToken.id,
+        email: decodedToken.email,
+        name: decodedToken.nome // Mapeamento de 'nome' para 'name'
     };
-
-    // Adiciona o novo usuário
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    return newUser;
 }
 
-// Função para fazer login
-function login(email, password) {
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find(user => 
-        user.email === email && 
-        atob(user.password) === password
-    );
-
-    if (!user) {
-        throw new Error('Email ou senha inválidos');
-    }
-
-    // Salva as informações do usuário logado
-    localStorage.setItem('currentUser', JSON.stringify({
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        isLoggedIn: true
-    }));
-
-    return user;
+/**
+ * Faz o logout do usuário removendo o token.
+ */
+export function logout() {
+    localStorage.removeItem('token');
 }
 
-// Função para verificar se o usuário está logado
-function isLoggedIn() {
-    const currentUser = JSON.parse(localStorage.getItem('currentUser') || '{}');
-    return currentUser.isLoggedIn === true;
-}
-
-// Função para obter o usuário atual
-function getCurrentUser() {
-    return JSON.parse(localStorage.getItem('currentUser') || '{}');
-}
-
-// Função para fazer logout
-function logout() {
-    localStorage.removeItem('currentUser');
-}
-
-// Exporta as funções
-export { createUser, login, isLoggedIn, getCurrentUser, logout };

@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/animations.css">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -42,7 +43,19 @@
                     <a href="#equipe" class="text-gray-300 hover:text-white transition-colors">Equipe</a>
                     <a href="#contato" class="text-gray-300 hover:text-white transition-colors">Contato</a>
                 </div>
-                <a href="login.html" class="hidden md:inline-block bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors">LOGIN / AGENDAR</a>
+                <!-- User Status Area -->
+                <div id="user-status-desktop" class="hidden md:flex items-center space-x-4">
+                    <!-- Guest View -->
+                    <div id="user-guest" class="flex items-center space-x-4">
+                        <a href="login.html" class="text-gray-300 hover:text-white transition-colors">Login</a>
+                        <a href="login.html" id="agendar-horario-btn-desktop" class="bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors btn-animated">Agendar Horário</a>
+                    </div>
+                    <!-- Logged In View -->
+                    <div id="user-logged-in" class="hidden items-center space-x-4">
+                        <span class="text-white">Olá, <span id="user-name" class="font-bold"></span></span>
+                        <button id="logout-btn" class="btn-animated">Sair</button>
+                    </div>
+                </div>
                 <button id="mobile-menu-button" class="md:hidden text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
@@ -54,7 +67,15 @@
             <a href="#servicos" class="block text-gray-300 hover:text-white p-4">Serviços</a>
             <a href="#equipe" class="block text-gray-300 hover:text-white p-4">Equipe</a>
             <a href="#contato" class="block text-gray-300 hover:text-white p-4">Contato</a>
-            <a href="login.html" class="block bg-amber-600 text-white font-bold m-4 py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors text-center">LOGIN / AGENDAR</a>
+            <!-- Mobile User Status -->
+            <div id="mobile-user-guest" class="p-4">
+                <a href="login.html" class="block text-gray-300 hover:text-white p-2 text-center">Login</a>
+                <a href="login.html" id="agendar-horario-btn-mobile" class="block bg-amber-600 text-white font-bold mt-2 py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors text-center btn-animated">Agendar Horário</a>
+            </div>
+            <div id="mobile-user-logged-in" class="hidden p-4 border-t border-gray-700">
+                 <span class="block text-white text-center mb-2">Olá, <span id="mobile-user-name" class="font-bold"></span></span>
+                 <button id="mobile-logout-btn" class="w-full btn-animated">Sair</button>
+            </div>
         </div>
     </header>
 
@@ -63,7 +84,7 @@
         <div class="container mx-auto px-4">
             <h1 class="font-teko text-6xl md:text-8xl font-bold tracking-widest">TRADIÇÃO E MODERNIDADE</h1>
             <p class="text-lg md:text-xl text-gray-300 mt-2 mb-8 max-w-2xl mx-auto">Onde cada corte é uma obra de arte e cada cliente é um rei. Bem-vindo à sua nova experiência em barbearia.</p>
-            <a href="login.html" class="bg-amber-600 text-white font-bold py-3 px-10 rounded-sm hover:bg-amber-700 transition-colors text-lg">FAÇA SEU AGENDAMENTO</a>
+            <a href="login.html" id="agendar-horario-btn-hero" class="bg-amber-600 text-white font-bold py-3 px-10 rounded-sm hover:bg-amber-700 transition-colors text-lg btn-animated">FAÇA SEU AGENDAMENTO</a>
         </div>
     </section>
 
@@ -72,26 +93,38 @@
         <div class="container mx-auto px-4 text-center text-white">
             <h2 class="font-teko text-5xl font-semibold mb-2">NOSSOS SERVIÇOS</h2>
             <p class="text-gray-400 mb-12">Do clássico ao contemporâneo, temos o serviço perfeito para você.</p>
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Service Card 1 -->
-                <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
-                    <h3 class="font-teko text-2xl text-amber-500 mb-2">CORTE DE CABELO</h3>
-                    <p class="text-gray-400">Estilo personalizado com tesoura e máquina, finalizado com os melhores produtos.</p>
+                <div class="bg-black/50 rounded-lg border border-gray-800 overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTS79NueZfqbCCaIcz6xV056DjpDZwBmVO1XQ&s" alt="Corte de Cabelo" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-teko text-2xl text-amber-500 mb-2">CORTE DE CABELO</h3>
+                        <p class="text-gray-400">Estilo personalizado com tesoura e máquina, finalizado com os melhores produtos.</p>
+                    </div>
                 </div>
                 <!-- Service Card 2 -->
-                <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
-                    <h3 class="font-teko text-2xl text-amber-500 mb-2">DESIGN DE BARBA</h3>
-                    <p class="text-gray-400">Modelagem profissional, toalha quente e navalha para um acabamento impecável.</p>
+                <div class="bg-black/50 rounded-lg border border-gray-800 overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <img src="https://i.pinimg.com/736x/a3/40/d2/a340d2242aebe377aaa2744126f46811.jpg" alt="Design de Barba" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-teko text-2xl text-amber-500 mb-2">DESIGN DE BARBA</h3>
+                        <p class="text-gray-400">Modelagem profissional, toalha quente e navalha para um acabamento impecável.</p>
+                    </div>
                 </div>
                 <!-- Service Card 3 -->
-                <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
-                    <h3 class="font-teko text-2xl text-amber-500 mb-2">COMBO (CABELO + BARBA)</h3>
-                    <p class="text-gray-400">A experiência completa para um visual renovado e alinhado.</p>
+                <div class="bg-black/50 rounded-lg border border-gray-800 overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <img src="https://i.pinimg.com/736x/2e/31/45/2e3145482642a0c0e958dccdf82ad087.jpg" alt="Combo Cabelo e Barba" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-teko text-2xl text-amber-500 mb-2">COMBO (CABELO + BARBA)</h3>
+                        <p class="text-gray-400">A experiência completa para um visual renovado e alinhado.</p>
+                    </div>
                 </div>
                 <!-- Service Card 4 -->
-                <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
-                    <h3 class="font-teko text-2xl text-amber-500 mb-2">TRATAMENTO CAPILAR</h3>
-                    <p class="text-gray-400">Hidratação e fortalecimento para manter seus cabelos saudáveis e fortes.</p>
+                <div class="bg-black/50 rounded-lg border border-gray-800 overflow-hidden transform hover:scale-105 transition-transform duration-300">
+                    <img src="https://i.pinimg.com/736x/ee/4d/9b/ee4d9b41c0f44c849b9b094f6217d79a.jpg" alt="Tratamento Capilar" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <h3 class="font-teko text-2xl text-amber-500 mb-2">TRATAMENTO CAPILAR</h3>
+                        <p class="text-gray-400">Hidratação e fortalecimento para manter seus cabelos saudáveis e fortes.</p>
+                    </div>
                 </div>
             </div>
         </div>
@@ -105,17 +138,15 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
                 <!-- Team Member 1 -->
                 <div class="text-center">
-                    <img src="https://images.unsplash.com/photo-1567028349343-32b0e3497b5e?q=80&w=1964&auto=format&fit=crop" alt="Barbeiro 1" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
-                    <h3 class="font-teko text-3xl">João "O Mestre" Silva</h3>
-                    <p class="text-amber-500">Barbeiro Chefe</p>
-                    <p class="text-gray-400 mt-2">Com mais de 15 anos de experiência, João é especialista em cortes clássicos e um mestre da navalha.</p>
+                    <img src="https://i.pinimg.com/736x/9d/66/59/9d665905e943159c0844248f20b8e716.jpg" alt="João" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
+                    <h3 class="font-teko text-3xl">João</h3>
+                    <p class="text-amber-500">Craque da navalha</p>
                 </div>
                 <!-- Team Member 2 -->
                 <div class="text-center">
-                    <img src="https://images.unsplash.com/photo-1621602444499-9ee24a2f4452?q=80&w=1974&auto=format&fit=crop" alt="Barbeiro 2" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
-                    <h3 class="font-teko text-3xl">Pedro "O Moderno" Costa</h3>
-                    <p class="text-amber-500">Barbeiro Jr.</p>
-                    <p class="text-gray-400 mt-2">Antenado nas últimas tendências, Pedro é o cara certo para cortes modernos, fades e desenhos.</p>
+                    <img src="https://i.pinimg.com/736x/90/ac/03/90ac030362b55107d24967d5942a4873.jpg" alt="Pedro" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
+                    <h3 class="font-teko text-3xl">Pedro</h3>
+                    <p class="text-amber-500">Artista do corte</p>
                 </div>
             </div>
         </div>
@@ -125,11 +156,18 @@
     <section id="contato" class="section-bg py-20">
         <div class="container mx-auto px-4 text-center text-white">
             <h2 class="font-teko text-5xl font-semibold mb-2">ONDE ESTAMOS</h2>
-            <p class="text-gray-400 mb-12">Venha nos visitar e tomar um café.</p>
-            <p class="text-lg">Rua da Barbearia, 123 - Centro, Sua Cidade - SP</p>
-            <p class="text-lg mt-2">Telefone: (11) 99999-8888</p>
-            <div class="mt-8">
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.14590155926!2d-46.65657118440696!3d-23.56309936754375!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ce59c8da0aa315%3A0x206d05a8f38da8ec!2sAv.%20Paulista%2C%20S%C3%A3o%20Paulo%20-%20SP!5e0!3m2!1spt-BR!2sbr!4v1672856981101!5m2!1spt-BR!2sbr" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade" class="rounded-lg border-2 border-gray-800"></iframe>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-6xl mx-auto">
+                <!-- Mapa -->
+                <div class="bg-black/50 rounded-lg border border-gray-800 overflow-hidden">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3958.460188947622!2d-34.833956!3d-7.187819!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x7acc21b4a623a67%3A0x63708a3f2b1d3c0e!2sRua%20Jacarap%C3%A9%20-%20Costa%20do%20Sol%2C%20Jo%C3%A3o%20Pessoa%20-%20PB%2C%2058048-535!5e0!3m2!1spt-BR!2sbr!4v1678886400000!5m2!1spt-BR!2sbr" width="100%" height="450" style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+                </div>
+                <!-- Informações de Contato -->
+                <div class="bg-black/50 p-8 rounded-lg border border-gray-800 flex flex-col justify-center">
+                    <p class="text-lg text-amber-500 mb-2">ENDEREÇO</p>
+                    <p class="text-gray-300">Rua Jacarapé<br>Costa do Sol, João Pessoa - PB<br>CEP: 58048-535</p>
+                    <p class="text-lg text-amber-500 mt-6 mb-2">HORÁRIO DE FUNCIONAMENTO</p>
+                    <p class="text-gray-300">Segunda a Sábado: 9:00 - 20:00</p>
+                </div>
             </div>
         </div>
     </section>
@@ -150,6 +188,7 @@
             mobileMenu.classList.toggle('hidden');
         });
     </script>
+    <script type="module" src="js/main-ui.js"></script>
 
                     <p class="text-xs text-gray-500 mt-1">Escolha o horário que melhor lhe convém</p>
                 </div>

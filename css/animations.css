@@ -1,0 +1,29 @@
+/* Animações para Botões */
+.btn-animated {
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+.btn-animated:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 20px rgba(255, 193, 7, 0.4);
+}
+
+/* Estilo para o nome do usuário */
+#user-info {
+    display: flex;
+    align-items: center;
+    gap: 1rem; /* Espaçamento entre o nome e o botão Sair */
+}
+
+#logout-btn {
+    background-color: #dc2626; /* Vermelho */
+    color: white;
+    font-weight: bold;
+    padding: 0.5rem 1rem;
+    border-radius: 0.125rem; /* rounded-sm */
+    transition: background-color 0.2s;
+}
+
+#logout-btn:hover {
+    background-color: #b91c1c;
+}

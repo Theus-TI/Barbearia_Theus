@@ -23,51 +23,52 @@ async function writeData(filePath, data) {
 }
 
 // Função para criar um novo agendamento (ROUTE HANDLER)
-async function criarAgendamento(dadosAgendamento, userId) {
-    console.log('\n--- Nova Requisição de Agendamento Recebida ---');
-    try {
+async function criarAgendamento(agendamentoData) {
+    const { userId, profissional_id, servico_id, data, hora, observacao } = agendamentoData;
 
-
-        // 2. Obter dados do corpo da requisição
-        const { profissional_id, servico_id, data, hora, observacao } = dadosAgendamento;
-        console.log('Dados do agendamento recebidos:', JSON.stringify(dadosAgendamento, null, 2));
-
-        if (!profissional_id || !servico_id || !data || !hora) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ error: 'Dados incompletos para o agendamento.' }));
-        }
-
-        // 3. Ler agendamentos existentes e criar novo agendamento
-        const agendamentos = await readData(AGENDAMENTOS_FILE);
-        const newId = agendamentos.length > 0 ? Math.max(...agendamentos.map(a => a.id)) + 1 : 1;
-
-        const newAgendamento = {
-            id: newId,
-            usuario_id: userId,
-            profissional_id: parseInt(profissional_id),
-            servico_id: parseInt(servico_id),
-            data_agendamento: `${data} ${hora}`,
-            observacao: observacao || '',
-            status: 'agendado',
-            criado_em: new Date().toISOString()
-        };
-
-        // 4. Salvar o novo agendamento
-        agendamentos.push(newAgendamento);
-        await writeData(AGENDAMENTOS_FILE, agendamentos);
-        console.log('Agendamento salvo com sucesso no arquivo JSON.');
-
-        // 5. Retornar sucesso
-        return { success: true, message: 'Agendamento criado com sucesso!', agendamento: newAgendamento };
-
-    } catch (error) {
-        console.error('ERRO DETALHADO AO CRIAR AGENDAMENTO:', error);
-        
-        // Propaga o erro para ser tratado pelo handler de rota no index.js
+    // Validação de dados essenciais
+    if (!userId || !profissional_id || !servico_id || !data || !hora) {
+        const error = new Error('Dados insuficientes. Profissional, serviço, data e hora são obrigatórios.');
+        error.statusCode = 400; // Bad Request
         throw error;
     }
-}
 
+    const agendamentos = await readData(AGENDAMENTOS_FILE);
+
+    // Verificação de conflito de horário
+    const conflito = agendamentos.find(ag => 
+        ag.data_agendamento.startsWith(data) && 
+        ag.data_agendamento.split(' ')[1] === hora && 
+        ag.profissional_id === parseInt(profissional_id) && 
+        ag.status !== 'cancelado'
+    );
+
+    if (conflito) {
+        const error = new Error('Horário indisponível para este profissional.');
+        error.statusCode = 409; // Conflict
+        throw error;
+    }
+
+    const newId = agendamentos.length > 0 ? Math.max(...agendamentos.map(a => a.id)) + 1 : 1;
+
+    const newAgendamento = {
+        id: newId,
+        usuario_id: userId,
+        profissional_id: parseInt(profissional_id),
+        servico_id: parseInt(servico_id),
+        data_agendamento: `${data} ${hora}`,
+        observacao: observacao || '',
+        status: 'agendado',
+        criado_em: new Date().toISOString()
+    };
+
+    agendamentos.push(newAgendamento);
+    await writeData(AGENDAMENTOS_FILE, agendamentos);
+    console.log('Agendamento salvo com sucesso no arquivo JSON.');
+
+    // 5. Retornar sucesso
+    return { success: true, message: 'Agendamento criado com sucesso!', agendamento: newAgendamento };
+}
 
 // Função para listar agendamentos de um usuário
 async function listarAgendamentos(usuario_id) {
