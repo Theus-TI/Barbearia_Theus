@@ -1,0 +1,53 @@
+.horario-button {
+    font-size: 1.1rem;
+    font-weight: 500;
+    color: #1f2937;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    border: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    border-radius: 0.75rem;
+    min-height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.horario-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.horario-button.selected {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+}
+
+/* Estilos para AM/PM */
+.horario-button.bg-blue-50 {
+    background-color: #f0f9ff;
+}
+
+.horario-button.bg-blue-50:hover {
+    background-color: #e0f2fe;
+}
+
+.horario-button.bg-blue-500 {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.horario-button.bg-green-50 {
+    background-color: #f0fdf4;
+}
+
+.horario-button.bg-green-50:hover {
+    background-color: #dcfce7;
+}
+
+.horario-button.bg-green-500 {
+    background-color: #34d399;
+    color: white;
+}

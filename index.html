@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta name="description" content="Barbearia Seu Estilo - Agende seu horário com nossos barbeiros especializados em cortes clássicos e modernos">
+        <title>Barbearia Seu Estilo - Agende seu Horário</title>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+        <link href="https://fonts.googleapis.com/css2?family=Urban+Heroes:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="css/styles.css">
+        <link rel="stylesheet" href="css/agendamento.css">
+        <link rel="stylesheet" href="css/footer.css">
+    </head>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Barbearia Seu Estilo - Agende seu horário com nossos barbeiros especializados em cortes clássicos e modernos">
+    <title>Barbearia Seu Estilo - Agende seu Horário</title>
+    <link rel="icon" type="image/png" href="assets/favicon.png">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/feather-icons"></script>
+    <script>
+        feather.replace();
+        
+        // Configuração do Tailwind
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#3B82F6',
+                        'primary-dark': '#2563EB',
+                        'primary-light': '#60A5FA',
+                        secondary: '#22C55E',
+                        'secondary-dark': '#16A34A'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css">
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body class="bg-background-dark text-text-primary">
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="container mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+                <div class="flex items-center">
+                    <div class="nav-brand">
+                        <img src="https://s3u.tmimgcdn.com/u37752224/7c8e9297ec93e65a6d873014b5963c00.gif" alt="Logo da Barbearia083" class="h-12 w-auto">
+                    </div>
+                </div>
+                <div class="hidden md:flex space-x-4" id="menuLinks">
+                    <a href="login.html" class="nav-link">Login</a>
+                    <a href="#home" class="nav-link">Início</a>
+                    <a href="#services" class="nav-link">Serviços</a>
+                    <a href="#team" class="nav-link">Equipe</a>
+                    <a href="#agendamento" class="nav-link">Agendamento</a>
+                </div>
+                <button class="mobile-menu-btn md:hidden">
+                    <i class="fas fa-bars"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <script src="js/auth-simple.js"></script>
+    <script>
+        // Verifica se o usuário está logado
+        if (isLoggedIn()) {
+            // Esconde o link de login
+            const loginLink = document.querySelector('a[href="login.html"]');
+            if (loginLink) {
+                loginLink.style.display = 'none';
+            }
+            
+            // Adiciona o nome do usuário
+            const userName = document.createElement('span');
+            userName.className = 'nav-link';
+            userName.textContent = getCurrentUser().name;
+            userName.style.color = '#166534'; // Cor verde
+            
+            // Adiciona o botão de logout
+            const logoutLink = document.createElement('a');
+            logoutLink.href = '#';
+            logoutLink.className = 'nav-link';
+            logoutLink.textContent = 'Sair';
+            logoutLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                logout();
+                window.location.href = 'login.html';
+            });
+            
+            // Insere o nome e o botão de logout no menu
+            const menu = document.getElementById('menuLinks');
+            if (menu) {
+                menu.insertBefore(userName, menu.children[1]);
+                menu.insertBefore(logoutLink, menu.children[2]);
+            }
+        }
+    </script>
+
+    <!-- Mobile Menu -->
+    <div id="mobileMenu" class="mobile-menu bg-white shadow-lg md:hidden">
+        <div class="px-4 py-3 border-b">
+            <div class="flex justify-between items-center">
+                <span class="text-lg font-semibold">Menu</span>
+                <button id="closeMobileMenu" class="p-2">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+        <div class="px-4 py-6">
+            <a href="#services" class="block py-2 text-lg hover:text-primary-color transition-colors">Serviços</a>
+            <a href="#team" class="block py-2 text-lg hover:text-primary-color transition-colors">Equipe</a>
+            <a href="#agendamento" class="block py-2 text-lg hover:text-primary-color transition-colors">Agendar Horário</a>
+            <button class="w-full py-3 mt-4 bg-primary-color text-white rounded-lg hover:bg-primary-dark transition-colors">
+                Agendar Agora
+            </button>
+        </div>
+    </div>
+    <script src="../js/main.js"></script>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section id="home" class="hero-bg">
+            <div class="hero-content">
+                <h1 class="hero-title animate-fade-in-up">Barbearia083</h1>
+                <p class="hero-subtitle animate-fade-in-down">Seu estilo, nossa especialidade</p>
+            </div>
+        </section>
+
+        <!-- Serviços Section -->
+        <section id="services" class="bg-gray-50 py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Nossos Serviços</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTS79NueZfqbCCaIcz6xV056DjpDZwBmVO1XQ&s" 
+                             alt="Corte de Cabelo" 
+                             class="w-full h-48 object-cover rounded-lg mb-4"
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/4A3F35/FFFFFF?text=Corte+Cabelo';">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Corte de Cabelo</h3>
+                        <p class="text-gray-600 text-sm">Cortes clássicos e modernos com técnicas de ponta</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <img src="https://i.ytimg.com/vi/onUKEu8k74s/maxresdefault.jpg" 
+                             alt="Barba e Sobrancelha" 
+                             class="w-full h-48 object-cover rounded-lg mb-4"
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/4A3F35/FFFFFF?text=Barba+Sobrancelha';">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Barba e Sobrancelha</h3>
+                        <p class="text-gray-600 text-sm">Modelagem de barba e sobrancelhas com precisão</p>
+                    </div>
+                    <div class="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                        <img src="https://i.pinimg.com/736x/af/ee/4d/afee4d609fe14527b8c3d5759e9a8abf.jpg" 
+                             alt="Nevou" 
+                             class="w-full h-48 object-cover rounded-lg mb-4"
+                             onerror="this.onerror=null; this.src='https://placehold.co/400x300/4A3F35/FFFFFF?text=Nevou';">
+                        <h3 class="text-xl font-semibold text-gray-900 mb-2">Nevou</h3>
+                        <p class="text-gray-600 text-sm">Corte + Nevou</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Equipe Section -->
+        <section id="team" class="bg-white py-16">
+            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <h2 class="text-3xl font-bold text-gray-900 mb-8 text-center">Nossa Equipe</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                    <div class="interactive-card professional-card" data-professional-id="leo">
+                        <img src="https://i.pinimg.com/736x/9d/66/59/9d665905e943159c0844248f20b8e716.jpg" 
+                             alt="Leo o Artista da Navalha" 
+                             class="barber-photo rounded-full mx-auto sm:mx-0 sm:mr-8 mb-5 sm:mb-0 object-cover flex-shrink-0 shadow-lg w-48 h-48 sm:w-64 sm:h-64"
+                             onerror="this.onerror=null; this.src='https://placehold.co/150x150/4A3F35/FFFFFF?text=Leo&fontsize=20';">
+                        <div class="flex-grow text-center sm:text-left">
+                            <h3 class="text-2xl font-semibold mb-1">Leo</h3>
+                            <p class="text-amber-600 font-semibold text-sm mb-3">O Artista da Navalha</p>
+                            <p class="text-gray-600 text-sm leading-relaxed">No coração da comunidade, ele é mais que um barbeiro: ele não apara apenas cabelo, ele esculpe a identidade e a autoestima da sua gente.</p>
+                        </div>
+                    </div>
+                    <div class="interactive-card professional-card" data-professional-id="lukinha">
+                        <img src="https://i.pinimg.com/736x/90/ac/03/90ac030362b55107d24967d5942a4873.jpg" 
+                             alt="Lukinha o Artista do Corte" 
+                             class="barber-photo rounded-full mx-auto sm:mx-0 sm:mr-8 mb-5 sm:mb-0 object-cover flex-shrink-0 shadow-lg w-48 h-48 sm:w-64 sm:h-64"
+                             onerror="this.onerror=null; this.src='https://placehold.co/150x150/4A3F35/FFFFFF?text=Lukinha&fontsize=20';">
+                        <div class="flex-grow text-center sm:text-left">
+                            <h3 class="text-2xl font-semibold mb-1">Lukinha</h3>
+                            <p class="text-amber-600 font-semibold text-sm mb-3">O Artista do Corte</p>
+                            <p class="text-gray-600 text-sm leading-relaxed">Craque na arte de transformar visuais com talento e paixão.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- Serviço -->
+                <div class="space-y-4">
+                    <label for="service" class="block text-sm font-medium text-gray-700">Serviço</label>
+                    <select id="service" name="service" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                        <option value="">Selecione um serviço</option>
+                        <option value="corte-cabelo">Corte de Cabelo</option>
+                        <option value="barba">Tratamento de Barba</option>
+                        <option value="bigode">Bigode</option>
+                        <option value="sobrancelha">Sobrancelha</option>
+                        <option value="combo">Combo: Corte + Barba</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Selecione o serviço que você deseja realizar</p>
+                </div>
+
+                <!-- Profissional -->
+                <div class="space-y-4">
+                    <label for="professional" class="block text-sm font-medium text-gray-700">Profissional</label>
+                    <select id="professional" name="professional" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                        <option value="">Selecione um profissional</option>
+                        <option value="leo">Leo - O Artista da Navalha</option>
+                        <option value="lukinha">Lukinha - O Especialista em Cortes</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Escolha seu barbeiro favorito</p>
+                </div>
+
+                <!-- Data -->
+                <div class="space-y-4">
+                    <label for="date" class="block text-sm font-medium text-gray-700">Data</label>
+                    <input type="date" id="date" name="date" 
+                           class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors"
+                           min="" max="">
+                    <p class="text-xs text-gray-500 mt-1">Selecione uma data disponível</p>
+                </div>
+
+                <!-- Grade de horários -->
+                <div class="mt-8">
+                    <h3 class="text-lg font-medium text-gray-700 mb-4">Selecione um horário</h3>
+                    <div id="horarios-container" class="grid grid-cols-4 gap-2 mb-4">
+                        <!-- Os horários serão inseridos aqui pelo JavaScript -->
+                    </div>
+                    <input type="hidden" id="horario-input" name="horario">
+                    <select id="time" name="time" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-colors">
+                        <option value="">Selecione um horário</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Escolha o horário que melhor lhe convém</p>
+                </div>
+            </div>
+
+            <!-- Botões -->
+            <div class="mt-8 pt-8 border-t border-gray-200">
+                <div class="flex justify-between items-center">
+                    <button type="button" id="resetForm" class="btn-secondary px-6 py-3">
+                        Limpar
+                    </button>
+                    <button type="button" id="schedule" class="btn-primary px-6 py-3">
+                        Agendar Horário
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="contato" class="bg-gray-900 text-gray-400 py-12 mt-16">
+        <div class="container mx-auto px-6 text-center">
+            <img src="https://storage.googleapis.com/gemini-generative-ai-europe-west4/prompt_images/barbearia_seu_estilo_logo_vintage_amber_black.jpeg" 
+                 alt="Logótipo Rodapé Barbearia Seu Estilo" 
+                 class="h-16 mx-auto mb-5"
+                 onerror="this.onerror=null; this.src='https://placehold.co/150x60/333333/FFFFFF?text=Logo&fontsize=16';">
+            <div class="flex justify-center space-x-4 mb-4">
+                <a href="#home" class="text-gray-400 hover:text-gray-200">Início</a>
+            </div>
+            <p class="playfair text-2xl mb-3 text-white">Barbearia Seu Estilo</p>
+            <p class="mb-1">Rua Fictícia, 123 - Bairro Imaginário, Cidade Exemplo</p>
+            <p class="mb-4">Telefone: (XX) 99999-8888 | Email: contato@seu-estilo.com</p>
+            <div class="flex justify-center space-x-5 mb-6">
+                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Facebook"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.03998C6.48 2.03998 2 6.51998 2 12.04C2 17.09 5.69 21.17 10.58 21.91V14.87H7.89V12.04H10.58V9.82998C10.58 7.15998 12.21 5.65998 14.63 5.65998C15.79 5.65998 16.98 5.84998 16.98 5.84998V8.27998H15.65C14.35 8.27998 13.99 9.05998 13.99 9.99998V12.04H16.87L16.43 14.87H13.99V21.96C18.81 21.39 22 17.12 22 12.04C22 6.51998 17.52 2.03998 12 2.03998Z"/></svg></a>
+                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Instagram"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.172.052 1.797.248 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.43.36 1.054.413 2.227.057 1.266.07 1.646.07 4.85s-.013 3.583-.07 4.85c-.052 1.172-.248 1.796-.413 2.227a3.48 3.48 0 01-.896 1.382c-.42.419-.82.679-1.382.896-.43.164-1.054.36-2.227.413-1.266.057-1.646.07-4.85.07s-3.584-.013-4.85-.07c-1.172-.052-1.796-.248-2.227-.413a3.492 3.492 0 01-.896-1.382 3.492 3.492 0 01-.896-1.382c-.164-.43-.36-1.054-.413-2.227-.057-1.266-.07-1.646-.07-4.85s.013-3.584.07-4.85c.052-1.172.248-1.797.413-2.227.217-.562.477-.96.896-1.382a3.492 3.492 0 011.381-.896c.43-.164 1.054-.36 2.227-.413C8.416 2.175 8.796 2.163 12 2.163m0-1.623C8.703.54 8.28.527 6.94.473c-1.4-.054-2.422.144-3.31.482a5.11 5.11 0 00-1.856 1.19c-.6.6-.976 1.256-1.19 1.855-.342.89-.537 1.91-.482 3.31C.527 8.28.54 8.702.54 12s-.013 3.72.013 5.06c.055 1.4.24 2.422.482 3.31.218.899.594 1.557 1.19 2.156.6.6 1.256.976 1.856 1.19.89.342 1.91.537 3.31.482 1.34.055 1.763.068 5.06.068s3.72-.013 5.06-.068c1.4-.055 2.422-.24 3.31-.482.899-.218 1.557-.594 2.156-1.19.6-.6.976-1.256 1.19-1.856.342-.89.537-1.91.482-3.31.055-1.34.068-1.763.068-5.06s-.013-3.72-.068-5.06c-.055-1.4-.24-2.422-.482-3.31a5.11 5.11 0 00-1.19-1.855c-.6-.6-1.256-.976-1.856-1.19-.89-.342-1.91-.537-3.31-.482C15.72.527 15.297.54 12 .54z"/><path d="M12 6.842a5.158 5.158 0 100 10.316A5.158 5.158 0 0012 6.842zm0 8.692a3.533 3.533 0 110-7.066 3.533 3.533 0 010 7.066z"/><circle cx="18.019" cy="5.981" r="1.25"/></svg></a>
+                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Twitter"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.46 6C21.69 6.35 20.86 6.58 20 6.69C20.88 6.16 21.56 5.32 21.88 4.31C21.05 4.81 20.13 5.16 19.16 5.36C18.37 4.5 17.26 4 16 4C13.65 4 11.73 5.92 11.73 8.29C11.73 8.63 11.77 8.96 11.84 9.27C8.28 9.09 5.11 7.38 3 4.79C2.63 5.42 2.42 6.16 2.42 6.94C2.42 8.43 3.17 9.75 4.33 10.5C3.62 10.48 2.96 10.3 2.38 10C2.38 10.01 2.38 10.02 2.38 10.04C2.38 12.11 3.86 13.85 5.82 14.24C5.46 14.34 5.08 14.39 4.69 14.39C4.42 14.39 4.15 14.36 3.89 14.31C4.45 16.03 6.13 17.26 8.12 17.29C6.67 18.45 4.85 19.12 2.92 19.12C2.56 19.12 2.21 19.1 1.88 19.04C3.81 20.29 6.08 21 8.58 21C16.01 21 20.24 14.98 20.24 8.79C20.24 8.6 20.24 8.4 20.23 8.21C21.02 7.63 21.78 6.87 22.46 6Z"/></svg></a> 
+            </div>
+            <p class="text-xs text-gray-500">&copy; <span id="currentYear"></span> Barbearia Seu Estilo. Todos os direitos reservados.</p>
+        </div>
+    </footer>
+
+    <!-- Modais -->
+
+
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content max-w-lg text-center relative">
+             <button id="closeConfirmationModal" class="modal-close-button" aria-label="Fechar modal">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+            </button>
+            <svg class="w-16 h-16 text-green-500 mx-auto mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            <h3 class="text-2xl font-semibold mb-3 text-gray-800 playfair">Agendamento Solicitado!</h3>
+            <p class="text-gray-600 mb-2">Serviço: <strong id="selectedServiceText" class="font-medium text-gray-700"></strong></p>
+            <p class="text-gray-600 mb-2">Profissional: <strong id="selectedProfText" class="font-medium text-gray-700"></strong></p>
+            <p class="text-gray-600 mb-5">Data e Hora: <strong id="selectedDateTime" class="font-medium text-gray-700"></strong></p>
+            <p class="text-sm text-gray-500 mb-6">Em breve entraremos em contacto para confirmar. Obrigado!</p>
+            <button id="okConfirmationModal" class="hero-button text-base px-8">OK</button>
+        </div>
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
+</body>
+</html>

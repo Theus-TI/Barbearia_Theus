@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Barbearia083</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Login</h1>
+        <form id="loginForm">
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required placeholder="Digite seu email">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" required placeholder="Digite sua senha">
+            </div>
+            <div class="remember-me-group">
+                <input type="checkbox" id="remember">
+                <label for="remember">Lembrar-me</label>
+            </div>
+            <div id="message" class="hidden message"></div>
+            <button type="submit" class="login-button">Entrar</button>
+        </form>
+        <div class="register-link">
+            <a href="register.html">Não tem uma conta? Crie uma</a>
+        </div>
+    </div>
+
+    <script src="js/auth-simple.js"></script>
+    <script>
+        // Verifica se já está logado
+        if (isLoggedIn()) {
+            window.location.href = 'index.html';
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('remember').checked;
+
+            if (!email || !password) {
+                showMessage('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+
+            try {
+                // Busca o usuário no localStorage
+                const users = JSON.parse(localStorage.getItem('users') || '[]');
+                const user = users.find(u => u.email === email && u.password === password);
+                
+                if (!user) {
+                    throw new Error('Email ou senha inválidos');
+                }
+
+                // Atualiza o usuário atual
+                localStorage.setItem('currentUser', JSON.stringify({
+                    id: user.id,
+                    name: user.name,
+                    email: user.email,
+                    isLoggedIn: true
+                }));
+
+                // Mostra mensagem de sucesso com o nome do usuário
+                showMessage(`Bem-vindo, ${user.name}!`, 'success');
+                
+                // Redireciona para a página principal
+                setTimeout(() => {
+                    window.location.href = 'index.html';
+                }, 2000);
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.classList.remove('hidden');
+            messageElement.classList.remove('success', 'error');
+            messageElement.classList.add(type);
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+[user]
+    name = WendersonBarboza
+    email = wendersonbarboza@gmail.com
+
+[credential]
+    helper = store
+
+[remote "origin"]
+    url = https://github.com/WendersonBarboza/barbearia.git
+    fetch = +refs/heads/*:refs/remotes/origin/*

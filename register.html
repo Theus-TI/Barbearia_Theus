@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-PT">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro - Barbearia083</title>
+    <link rel="stylesheet" href="css/login.css">
+</head>
+<body>
+    <div class="login-container">
+        <h1>Registro</h1>
+        <form id="registerForm">
+            <div class="form-group">
+                <label for="name">Nome:</label>
+                <input type="text" id="name" required placeholder="Digite seu nome">
+            </div>
+            <div class="form-group">
+                <label for="email">Email:</label>
+                <input type="email" id="email" required placeholder="Digite seu email">
+            </div>
+            <div class="form-group">
+                <label for="password">Senha:</label>
+                <input type="password" id="password" required placeholder="Digite sua senha">
+            </div>
+            <div class="form-group">
+                <label for="confirmPassword">Confirmar Senha:</label>
+                <input type="password" id="confirmPassword" required placeholder="Confirme sua senha">
+            </div>
+            <div id="message" class="hidden message"></div>
+            <button type="submit" class="login-button">Registrar</button>
+        </form>
+        <div class="register-link">
+            <a href="login.html">Já tem uma conta? Faça login</a>
+        </div>
+    </div>
+
+    <script src="js/auth-simple.js"></script>
+    <script>
+        // Verifica se já está logado
+        if (isLoggedIn()) {
+            window.location.href = 'catalogo.html';
+        }
+
+        document.getElementById('registerForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+
+            if (!name || !email || !password || !confirmPassword) {
+                showMessage('Por favor, preencha todos os campos.', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showMessage('As senhas não coincidem!', 'error');
+                return;
+            }
+
+            try {
+                createUser(name, email, password);
+                showMessage('Login criado com sucesso! Redirecionando...', 'success');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 2000);
+            } catch (error) {
+                showMessage(error.message, 'error');
+            }
+        });
+
+        function showMessage(message, type) {
+            const messageElement = document.getElementById('message');
+            messageElement.textContent = message;
+            messageElement.classList.remove('hidden');
+            messageElement.classList.remove('success', 'error');
+            messageElement.classList.add(type);
+            setTimeout(() => {
+                messageElement.classList.add('hidden');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

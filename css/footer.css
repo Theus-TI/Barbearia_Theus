@@ -1,0 +1,43 @@
+/* Estilos do rodapé */
+footer {
+    background-color: #374151;
+    color: #e5e7eb;
+    padding: 4rem 0;
+    text-align: center;
+}
+
+footer a {
+    color: #e5e7eb;
+    text-decoration: none;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: #3b82f6;
+}
+
+footer p {
+    margin: 0.5rem 0;
+}
+
+footer .playfair {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin: 1rem 0;
+}
+
+footer .social-links {
+    margin: 1rem 0;
+}
+
+footer .social-links a {
+    margin: 0 0.5rem;
+    padding: 0.5rem;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+}
+
+footer .social-links a:hover {
+    background-color: rgba(59, 130, 246, 0.1);
+    transform: translateY(-2px);
+}
