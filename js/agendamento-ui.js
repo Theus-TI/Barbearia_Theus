@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('http://localhost:3000/agendamento', {
+            const response = await fetch('http://localhost:3000/agendamentos', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
