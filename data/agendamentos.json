@@ -1,0 +1,22 @@
+[
+  {
+    "id": 1,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 2,
+    "data_agendamento": "2025-06-13 10:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-06-11T05:37:07.507Z"
+  },
+  {
+    "id": 2,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 2,
+    "data_agendamento": "2025-06-24 14:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-06-11T05:37:48.557Z"
+  }
+]

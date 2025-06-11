@@ -1,40 +1,82 @@
 <!DOCTYPE html>
-<html lang="pt-PT">
+<html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Barbearia083</title>
-    <link rel="stylesheet" href="css/login.css">
+    <title>Login - Barbearia Theus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a0a;
+        }
+        .font-teko {
+            font-family: 'Teko', sans-serif;
+        }
+        .login-bg {
+            background-image: linear-gradient(to top, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0.8) 50%, rgba(10, 10, 10, 1) 100%), url('https://images.unsplash.com/photo-1599351431202-1aa5a4848c8a?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .message {
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #16a34a;
+            color: white;
+        }
+        .error {
+            background-color: #dc2626;
+            color: white;
+        }
+    </style>
 </head>
-<body>
-    <div class="login-container">
-        <h1>Login</h1>
-        <form id="loginForm">
-            <div class="form-group">
-                <label for="email">Email:</label>
-                <input type="email" id="email" required placeholder="Digite seu email">
-            </div>
-            <div class="form-group">
-                <label for="password">Senha:</label>
-                <input type="password" id="password" required placeholder="Digite sua senha">
-            </div>
-            <div class="remember-me-group">
-                <input type="checkbox" id="remember">
-                <label for="remember">Lembrar-me</label>
-            </div>
-            <div id="message" class="hidden message"></div>
-            <button type="submit" class="login-button">Entrar</button>
-        </form>
-        <div class="register-link">
-            <a href="register.html">Não tem uma conta? Crie uma</a>
+<body class="login-bg">
+
+    <div class="min-h-screen flex flex-col items-center justify-center">
+        <a href="index.html" class="text-4xl font-bold font-teko text-white tracking-wider mb-8">BARBEARIA THEUS</a>
+
+        <div class="w-full max-w-md bg-black/50 backdrop-blur-lg p-8 rounded-lg border border-gray-800">
+            <h2 class="font-teko text-4xl text-white text-center mb-6">Acessar Conta</h2>
+            
+            <form id="loginForm">
+                <div id="message" class="hidden"></div>
+
+                <div class="mb-4">
+                    <label class="block text-gray-400 text-sm font-bold mb-2" for="email">Email</label>
+                    <input class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="email" type="email" placeholder="seu.email@exemplo.com" required>
+                </div>
+                
+                <div class="mb-6">
+                    <label class="block text-gray-400 text-sm font-bold mb-2" for="password">Senha</label>
+                    <input class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white mb-3 leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="password" type="password" placeholder="••••••••••" required>
+                </div>
+                
+                <div class="flex items-center justify-between mb-6">
+                    <button class="w-full bg-amber-600 hover:bg-amber-700 text-white font-bold py-3 px-4 rounded-sm focus:outline-none focus:shadow-outline transition-colors" type="submit">
+                        ENTRAR
+                    </button>
+                </div>
+
+                <div class="text-center">
+                    <p class="text-gray-500 text-sm">Não tem uma conta? <a href="register.html" class="font-bold text-amber-500 hover:text-amber-600">Registre-se aqui</a></p>
+                    <p class="text-gray-500 text-sm mt-2"><a href="recuperar-senha.php" class="hover:text-amber-600">Esqueceu a senha?</a></p>
+                </div>
+            </form>
         </div>
     </div>
 
-    <script src="js/auth-simple.js"></script>
     <script>
-        // Verifica se já está logado
-        if (isLoggedIn()) {
-            window.location.href = 'index.html';
+        // Se já existir um token, redireciona para a página de agendamento
+        if (localStorage.getItem('token')) {
+            window.location.href = 'agendamento.html';
         }
 
         document.getElementById('loginForm').addEventListener('submit', async function(e) {
@@ -42,7 +84,6 @@
             
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
-            const remember = document.getElementById('remember').checked;
 
             if (!email || !password) {
                 showMessage('Por favor, preencha todos os campos.', 'error');
@@ -50,29 +91,28 @@
             }
 
             try {
-                // Busca o usuário no localStorage
-                const users = JSON.parse(localStorage.getItem('users') || '[]');
-                const user = users.find(u => u.email === email && u.password === password);
-                
-                if (!user) {
-                    throw new Error('Email ou senha inválidos');
+                const response = await fetch('http://localhost:3000/login', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Erro ao tentar fazer login.');
                 }
 
-                // Atualiza o usuário atual
-                localStorage.setItem('currentUser', JSON.stringify({
-                    id: user.id,
-                    name: user.name,
-                    email: user.email,
-                    isLoggedIn: true
-                }));
-
-                // Mostra mensagem de sucesso com o nome do usuário
-                showMessage(`Bem-vindo, ${user.name}!`, 'success');
+                // Armazena o token e redireciona
+                localStorage.setItem('token', data.token);
+                showMessage('Login bem-sucedido! Redirecionando...', 'success');
                 
-                // Redireciona para a página principal
                 setTimeout(() => {
-                    window.location.href = 'index.html';
-                }, 2000);
+                    window.location.href = 'agendamento.html';
+                }, 1500);
+
             } catch (error) {
                 showMessage(error.message, 'error');
             }
@@ -81,12 +121,11 @@
         function showMessage(message, type) {
             const messageElement = document.getElementById('message');
             messageElement.textContent = message;
-            messageElement.classList.remove('hidden');
-            messageElement.classList.remove('success', 'error');
-            messageElement.classList.add(type);
+            messageElement.className = 'message ' + type; // Remove classes antigas e adiciona as novas
+            
             setTimeout(() => {
-                messageElement.classList.add('hidden');
-            }, 2000);
+                messageElement.className = 'hidden';
+            }, 3000);
         }
     </script>
 </body>

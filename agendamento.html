@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agendamento - Barbearia Theus</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&family=Teko:wght@600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #0a0a0a;
+        }
+        .font-teko {
+            font-family: 'Teko', sans-serif;
+        }
+        .page-bg {
+            background-image: linear-gradient(to top, rgba(10, 10, 10, 1) 0%, rgba(10, 10, 10, 0.9) 50%, rgba(10, 10, 10, 1) 100%), url('https://images.unsplash.com/photo-1599351431202-1aa5a4848c8a?q=80&w=1974&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+            background-attachment: fixed;
+        }
+        .feedback {
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 0.25rem;
+            text-align: center;
+            font-weight: bold;
+            font-size: 0.875rem;
+        }
+        .feedback.success {
+            background-color: #16a34a;
+            color: white;
+        }
+        .feedback.error {
+            background-color: #dc2626;
+            color: white;
+        }
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(0.7) sepia(1) hue-rotate(10deg) saturate(5);
+        }
+    </style>
+</head>
+<body class="page-bg">
+
+    <div class="min-h-screen flex flex-col items-center justify-center py-12">
+        <a href="index.html" class="text-4xl font-bold font-teko text-white tracking-wider mb-4">BARBEARIA THEUS</a>
+        <p class="text-gray-400 mb-8">Agende seu horário de forma rápida e moderna.</p>
+
+        <div class="w-full max-w-2xl bg-black/50 backdrop-blur-lg p-8 rounded-lg border border-gray-800">
+            
+            <div id="feedback-message" class="hidden"></div>
+
+            <form id="form-agendamento" class="space-y-6">
+                
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-400 text-sm font-bold mb-2" for="email">Seu Email</label>
+                        <input class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="email" name="email" type="email" placeholder="seu.email@exemplo.com" required>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm font-bold mb-2" for="profissional">Profissional</label>
+                        <select class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="profissional" name="profissional" required>
+                            <option value="" disabled selected>Selecione um profissional</option>
+                            <option value="1">João "O Mestre" Silva</option>
+                            <option value="2">Pedro "O Moderno" Costa</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-gray-400 text-sm font-bold mb-2" for="servico">Serviço</label>
+                        <select class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="servico" name="servico" required>
+                            <option value="" disabled selected>Selecione um serviço</option>
+                            <option value="1">Corte de Cabelo</option>
+                            <option value="2">Design de Barba</option>
+                            <option value="3">Combo (Cabelo + Barba)</option>
+                            <option value="4">Tratamento Capilar</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-gray-400 text-sm font-bold mb-2" for="data">Data</label>
+                        <input class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="data" name="data" type="date" required>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 text-sm font-bold mb-2">Horário</label>
+                    <div id="horarios-disponiveis" class="grid grid-cols-4 sm:grid-cols-5 md:grid-cols-6 gap-2 p-4 bg-gray-900/50 border border-gray-800 rounded-lg min-h-[100px]">
+                        <p class="placeholder text-gray-500 col-span-full text-center p-4">Selecione um profissional e uma data para ver os horários.</p>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-gray-400 text-sm font-bold mb-2" for="observacao">Observações (Opcional)</label>
+                    <textarea class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="observacao" name="observacao" rows="3" placeholder="Alguma preferência ou detalhe para o serviço?"></textarea>
+                </div>
+                
+                <div class="pt-4">
+                    <button class="w-full bg-amber-600 hover:bg-amber-700 disabled:bg-gray-600 disabled:cursor-not-allowed text-white font-bold py-3 px-4 rounded-sm focus:outline-none focus:shadow-outline transition-colors" type="submit" id="btn-agendar" disabled>
+                        CONFIRMAR AGENDAMENTO
+                    </button>
+                </div>
+            </form>
+        </div>
+        <footer class="text-center text-gray-500 mt-8">
+            <p>&copy; 2025 Barbearia Theus. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+
+    <script src="js/agendamento-ui.js"></script>
+</body>
+</html>
