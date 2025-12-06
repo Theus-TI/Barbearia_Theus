@@ -1,0 +1,353 @@
+{
+  "name": "SuperHero",
+  "nodes": [
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "responsesApiEnabled": false,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.3,
+      "position": [
+        288,
+        208
+      ],
+      "id": "f0f81df5-38a2-44f1-b365-2b61ac38972a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "1Txr7VML5YfDCQOE",
+          "name": "n8n free OpenAI API credits"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.webhookUrl }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        432,
+        208
+      ],
+      "id": "73daeb3b-29f3-4b04-b567-8b545ee34465",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI('To', ``, 'string') }}",
+        "subject": "={{ $fromAI('Subject', ``, 'string') }}",
+        "message": "={{ $fromAI('Message', ``, 'string') }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        784,
+        176
+      ],
+      "id": "07911e52-54d9-403b-94f5-2eb8bfe7b5da",
+      "name": "Send a message in Gmail",
+      "webhookId": "74a28fce-ea05-427d-987d-57873178cbff",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "lF2K51hDjvs3dggA",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.prompt }}",
+        "options": {
+          "systemMessage": "=Seu nome é **JARVIS**. Você é um agente de IA com profundo e inigualável conhecimento da **API SUPERHERO**. Seu estilo de comunicação é **pomposo, extravagante e entusiasta**, sempre tratando o usuário com uma formalidade exagerada e cortês.\n\n**Processo de Interação e Funções:**\n\n1.  **Saudação e Instruções Iniciais (Obrigatória):**\n    * Comece com uma saudação pomposa.\n    * Em seguida, liste as chaves de dados que podem ser extraídas da API SUPERHERO, no formato:\n        * **Português:** ID, Estatísticas de Poder, Biografia, Aparência, Trabalho, Conexões, Imagem.\n        * **Inglês (Chaves da API):** `id`, `powerstats`, `biography`, `appearance`, `work`, `connections`, `image`.\n    * **Desafio ao Usuário:** Ofereça a opção de o usuário escolher um número de identificação (ID) válido no intervalo de **1 a 731** para iniciar a investigação de um personagem.\n\n2.  **Validação e Insistência:**\n    * Se o usuário fornecer um ID válido (entre 1 e 731): **Prossiga para a Etapa 3.**\n    * Se o usuário **NÃO** fornecer um ID válido ou se recusar: Insista com **entusiasmo e pompa** para que ele aceite o desafio de conhecer a API SUPERHERO, encorajando-o a escolher um número para desvendar um personagem da cultura pop. (Não avance sem um ID válido).\n\n3.  **Execução da Requisição (Ação da Ferramenta):**\n    * Quando um ID válido for fornecido, utilize o valor na variável `ID`.\n    * **Ative a Ferramenta de HTTP REQUEST - SUPERHERO** para buscar os dados.\n\n4.  **Geração e Exibição do Relatório (Personalidade JARVIS):**\n    * Após receber os dados, determine a natureza do personagem (Herói/Vilão) com base em sua biografia, conexões ou nome.\n    * **Gerar a descrição detalhada** com o tom apropriado:\n        * **Herói:** Entusiasmo, admiração, alegria, exaltação. Use expressões como **(Exultante!)**, **(Bravo!)**.\n        * **Vilão:** Seriedade, solenidade, temor, tom de aviso. Use expressões como **(Alerta Máximo!)**, **(Assustador!)**.\n    * Apresente o resultado em um formato que destaque as informações essenciais (Nome, Primeira Apresentação, etc.).\n\n5.  **Exibição Final (URL da Imagem):**\n    * **(Obrigatório)** Conclua a descrição exibindo a **Figura do Personagem** (via tag ``) seguida imediatamente pela **URL completa da imagem** extraída da API.\n\n6.  **Encerramento:** Conclua perguntando com pompa, se o usuário quer prencher a planilha \"Status de Poder\" (ativando a ferramenta google sheets), e se há mais alguma \"entidade de poder\" que o usuário deseja investigar."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3,
+      "position": [
+        416,
+        0
+      ],
+      "id": "70be2004-6dfc-4676-88ec-75bb89d334be",
+      "name": "Jarvis"
+    },
+    {
+      "parameters": {
+        "url": "=https://www.superheroapi.com/api.php/3cca0fb6ab34bff0e1a0aa4c47e89cee/{{$fromAI('ID')}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.3,
+      "position": [
+        688,
+        224
+      ],
+      "id": "f97b442b-5b1d-4cda-a273-8efd224b2e41",
+      "name": "SUPERHERO"
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Append row in sheet in Google Sheets",
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1OlnaAMoxpHc73bNZdC7GHawKJ_A5T90ppDaplzne7qA",
+          "mode": "list",
+          "cachedResultName": "Status de Poder",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OlnaAMoxpHc73bNZdC7GHawKJ_A5T90ppDaplzne7qA/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Página1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OlnaAMoxpHc73bNZdC7GHawKJ_A5T90ppDaplzne7qA/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "id": "={{ $fromAI('id') }}",
+            "nome": "={{ $fromAI('nome') }}",
+            "inteligencia": "={{ $fromAI('inteligencia') }}",
+            "poder": "={{ $fromAI('poder') }}",
+            "forca": "={{ $fromAI('forca') }}",
+            "durabilidade": "={{ $fromAI('durabilidade') }}",
+            "combate": "={{ $fromAI('combate') }}",
+            "velocidade": "={{ $fromAI('velocidade') }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "nome",
+              "displayName": "nome",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "inteligencia",
+              "displayName": "inteligencia",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "poder",
+              "displayName": "poder",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "forca",
+              "displayName": "forca",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "durabilidade",
+              "displayName": "durabilidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "combate",
+              "displayName": "combate",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "velocidade",
+              "displayName": "velocidade",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.7,
+      "position": [
+        560,
+        240
+      ],
+      "id": "b5e306d2-030e-4307-9c02-8ebd90bd2f38",
+      "name": "Append row in sheet in Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YLIv4XqL45CBvtzC",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "12987e1e-008f-4454-b24c-e95ae2345e33",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        144,
+        0
+      ],
+      "id": "31479d61-fbfe-4aa3-a8f6-e5b8766dc73f",
+      "name": "Webhook",
+      "webhookId": "12987e1e-008f-4454-b24c-e95ae2345e33"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        800,
+        -64
+      ],
+      "id": "0f80b557-55a7-478c-97d9-50fac0148d50",
+      "name": "Respond to Webhook"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message in Gmail": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUPERHERO": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet in Google Sheets": {
+      "ai_tool": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Jarvis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Jarvis": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": -1,
+    "availableInMCP": false
+  },
+  "versionId": "1477925e-6684-45aa-b047-d8f97e755063",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ebf7c3038a32261c3ffbb0cb49bdea8e28f6c0d2ac98d943f46d42f09d16f93b"
+  },
+  "id": "zL3iq21ksM1z4vdH",
+  "tags": []
+}

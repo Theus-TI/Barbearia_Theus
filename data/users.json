@@ -4,5 +4,12 @@
     "nome": "Matheus Henrique Ferreira de Souza",
     "email": "usuario@teste.com",
     "senha": "$2b$10$ZKHAJ5vW3PPEgfFLy.DLmuqcQyY1gOf2fA1byjEt.Do1xdaebrfwS"
+  },
+  {
+    "id": 2,
+    "nome": "Administrador",
+    "email": "adm@adm",
+    "senha": "$2b$10$Tuk/hEA.qO0OvnwE7NiDLeej3vz5UuqbQogbtMHJug3FhtVg9XgFC",
+    "role": "admin"
   }
 ]

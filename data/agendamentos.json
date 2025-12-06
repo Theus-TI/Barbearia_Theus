@@ -6,8 +6,9 @@
     "servico_id": 2,
     "data_agendamento": "2025-06-13 10:00:00",
     "observacao": "",
-    "status": "agendado",
-    "criado_em": "2025-06-11T05:37:07.507Z"
+    "status": "cancelado",
+    "criado_em": "2025-06-11T05:37:07.507Z",
+    "atualizado_em": "2025-10-29T23:54:30.230Z"
   },
   {
     "id": 2,
@@ -16,7 +17,88 @@
     "servico_id": 2,
     "data_agendamento": "2025-06-24 14:00:00",
     "observacao": "",
+    "status": "cancelado",
+    "criado_em": "2025-06-11T05:37:48.557Z",
+    "atualizado_em": "2025-10-29T23:54:29.696Z"
+  },
+  {
+    "id": 3,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 1,
+    "data_agendamento": "2025-10-31 11:00:00",
+    "observacao": "navalhado",
     "status": "agendado",
-    "criado_em": "2025-06-11T05:37:48.557Z"
+    "criado_em": "2025-10-30T01:09:01.373Z"
+  },
+  {
+    "id": 4,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 1,
+    "data_agendamento": "2025-11-01 10:00:00",
+    "observacao": "navalhado ",
+    "status": "agendado",
+    "criado_em": "2025-10-30T01:56:26.449Z"
+  },
+  {
+    "id": 5,
+    "usuario_id": 2,
+    "profissional_id": 1,
+    "servico_id": 1,
+    "data_agendamento": "2025-10-29 11:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-10-30T01:57:58.306Z"
+  },
+  {
+    "id": 6,
+    "usuario_id": 1,
+    "profissional_id": 2,
+    "servico_id": 4,
+    "data_agendamento": "2025-11-27 15:00:00",
+    "observacao": "aa",
+    "status": "agendado",
+    "criado_em": "2025-10-30T01:59:15.864Z"
+  },
+  {
+    "id": 7,
+    "usuario_id": 1,
+    "profissional_id": 2,
+    "servico_id": 3,
+    "data_agendamento": "2025-09-24 15:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-10-30T01:59:23.765Z"
+  },
+  {
+    "id": 8,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 4,
+    "data_agendamento": "2025-10-11 15:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-10-30T02:00:12.065Z"
+  },
+  {
+    "id": 9,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 3,
+    "data_agendamento": "2025-10-30 14:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-10-30T02:00:21.536Z"
+  },
+  {
+    "id": 10,
+    "usuario_id": 1,
+    "profissional_id": 1,
+    "servico_id": 1,
+    "data_agendamento": "2025-11-13 09:00:00",
+    "observacao": "",
+    "status": "agendado",
+    "criado_em": "2025-11-13T17:03:19.091Z"
   }
 ]

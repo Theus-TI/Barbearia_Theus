@@ -42,7 +42,17 @@
                     <a href="#equipe" class="text-gray-300 hover:text-white transition-colors">Equipe</a>
                     <a href="#contato" class="text-gray-300 hover:text-white transition-colors">Contato</a>
                 </div>
-                <a href="login.html" class="hidden md:inline-block bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors">LOGIN / AGENDAR</a>
+                <div class="hidden md:flex items-center space-x-4" id="auth-area">
+                    <a id="loginBtn" href="login.html" class="bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors">LOGIN / AGENDAR</a>
+                    <div id="userArea" class="hidden items-center space-x-3">
+                        <span class="text-gray-300">Olá, <span id="userName" class="text-white font-bold"></span></span>
+                        <a href="agendamento.html" class="bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors">AGENDAR</a>
+                        <button id="logoutBtn" class="text-gray-400 hover:text-white">Sair</button>
+                    </div>
+                    <button id="adminMenuButton" class="hidden text-white hover:text-amber-500" title="Painel Admin">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
                 <button id="mobile-menu-button" class="md:hidden text-white">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                 </button>
@@ -54,7 +64,12 @@
             <a href="#servicos" class="block text-gray-300 hover:text-white p-4">Serviços</a>
             <a href="#equipe" class="block text-gray-300 hover:text-white p-4">Equipe</a>
             <a href="#contato" class="block text-gray-300 hover:text-white p-4">Contato</a>
-            <a href="login.html" class="block bg-amber-600 text-white font-bold m-4 py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors text-center">LOGIN / AGENDAR</a>
+            <a id="mobileLoginLink" href="login.html" class="block bg-amber-600 text-white font-bold m-4 py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors text-center">LOGIN / AGENDAR</a>
+            <div id="mobileUserArea" class="hidden m-4 p-4 border border-gray-800 rounded text-center space-y-3">
+                <div class="text-gray-300">Olá, <span id="mobileUserName" class="text-white font-bold"></span></div>
+                <a href="agendamento.html" class="block bg-amber-600 text-white font-bold py-2 px-6 rounded-sm hover:bg-amber-700 transition-colors">AGENDAR</a>
+                <button id="mobileLogoutBtn" class="w-full text-gray-400 hover:text-white">Sair</button>
+            </div>
         </div>
     </header>
 
@@ -75,21 +90,25 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
                 <!-- Service Card 1 -->
                 <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
+                    <img src="assets/corte.jpg" alt="Corte de Cabelo" class="w-full h-40 object-cover rounded mb-4" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/800x320/111111/FFA500?text=Corte+de+Cabelo';">
                     <h3 class="font-teko text-2xl text-amber-500 mb-2">CORTE DE CABELO</h3>
                     <p class="text-gray-400">Estilo personalizado com tesoura e máquina, finalizado com os melhores produtos.</p>
                 </div>
                 <!-- Service Card 2 -->
                 <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
+                    <img src="assets/barba.jpg" alt="Design de Barba" class="w-full h-40 object-cover rounded mb-4" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/800x320/111111/FFA500?text=Design+de+Barba';">
                     <h3 class="font-teko text-2xl text-amber-500 mb-2">DESIGN DE BARBA</h3>
                     <p class="text-gray-400">Modelagem profissional, toalha quente e navalha para um acabamento impecável.</p>
                 </div>
                 <!-- Service Card 3 -->
                 <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
+                    <img src="assets/combo.jpg" alt="Combo (Cabelo + Barba)" class="w-full h-40 object-cover rounded mb-4" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/800x320/111111/FFA500?text=Combo';">
                     <h3 class="font-teko text-2xl text-amber-500 mb-2">COMBO (CABELO + BARBA)</h3>
                     <p class="text-gray-400">A experiência completa para um visual renovado e alinhado.</p>
                 </div>
                 <!-- Service Card 4 -->
                 <div class="bg-black/50 p-8 rounded-lg border border-gray-800">
+                    <img src="assets/tratamento.jpg" alt="Tratamento Capilar" class="w-full h-40 object-cover rounded mb-4" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/800x320/111111/FFA500?text=Tratamento+Capilar';">
                     <h3 class="font-teko text-2xl text-amber-500 mb-2">TRATAMENTO CAPILAR</h3>
                     <p class="text-gray-400">Hidratação e fortalecimento para manter seus cabelos saudáveis e fortes.</p>
                 </div>
@@ -105,17 +124,17 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
                 <!-- Team Member 1 -->
                 <div class="text-center">
-                    <img src="https://images.unsplash.com/photo-1567028349343-32b0e3497b5e?q=80&w=1964&auto=format&fit=crop" alt="Barbeiro 1" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
-                    <h3 class="font-teko text-3xl">João "O Mestre" Silva</h3>
+                    <img src="assets/rafa.jpg" alt="Rafa" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/192x192/111111/FFA500?text=Rafa';">
+                    <h3 class="font-teko text-3xl">Rafa</h3>
                     <p class="text-amber-500">Barbeiro Chefe</p>
-                    <p class="text-gray-400 mt-2">Com mais de 15 anos de experiência, João é especialista em cortes clássicos e um mestre da navalha.</p>
+                    <p class="text-gray-400 mt-2">Com mais de 15 anos de experiência, Rafa é especialista em cortes clássicos e um mestre da navalha.</p>
                 </div>
                 <!-- Team Member 2 -->
                 <div class="text-center">
-                    <img src="https://images.unsplash.com/photo-1621602444499-9ee24a2f4452?q=80&w=1974&auto=format&fit=crop" alt="Barbeiro 2" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600">
-                    <h3 class="font-teko text-3xl">Pedro "O Moderno" Costa</h3>
+                    <img src="assets/tteu.jpg" alt="Tteu" class="w-48 h-48 rounded-full mx-auto mb-4 object-cover border-4 border-amber-600" loading="lazy" onerror="this.onerror=null; this.src='https://placehold.co/192x192/111111/FFA500?text=Tteu';">
+                    <h3 class="font-teko text-3xl">Tteu</h3>
                     <p class="text-amber-500">Barbeiro Jr.</p>
-                    <p class="text-gray-400 mt-2">Antenado nas últimas tendências, Pedro é o cara certo para cortes modernos, fades e desenhos.</p>
+                    <p class="text-gray-400 mt-2">Antenado nas últimas tendências, Tteu é o cara certo para cortes modernos, fades e desenhos.</p>
                 </div>
             </div>
         </div>
@@ -145,71 +164,191 @@
     <script>
         const mobileMenuButton = document.getElementById('mobile-menu-button');
         const mobileMenu = document.getElementById('mobile-menu');
+        mobileMenuButton.addEventListener('click', () => { mobileMenu.classList.toggle('hidden'); });
 
-        mobileMenuButton.addEventListener('click', () => {
-            mobileMenu.classList.toggle('hidden');
-        });
+        function isTokenValid(token) { if (!token) return false; const parts = token.split('.'); if (parts.length !== 3) return false; try { const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))); if (!payload.exp) return false; return payload.exp * 1000 > Date.now(); } catch { return false; } }
+        function getPayload(token) { const parts = token.split('.'); return JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/'))); }
+        function getToken() { return localStorage.getItem('token'); }
+        function formatBRL(v) { try { return Number(v||0).toLocaleString('pt-BR',{style:'currency',currency:'BRL'}); } catch { return 'R$ 0,00'; } }
+
+        let adminUI = null;
+        function createAdminPanel() {
+            if (document.getElementById('adminOverlay')) return adminUI;
+            const overlay = document.createElement('div');
+            overlay.id = 'adminOverlay';
+            overlay.className = 'fixed inset-0 z-[60] hidden';
+            overlay.innerHTML = `
+               <div class="absolute inset-0 bg-black/50" id="adminOverlayBg"></div>
+               <div class="absolute right-0 top-0 h-full w-full sm:w-[520px] bg-[#0b0b0b] border-l border-gray-800 overflow-y-auto" id="adminDrawer">
+                 <div class="flex items-center justify-between p-4 border-b border-gray-800 sticky top-0 bg-[#0b0b0b] z-10">
+                  <div class="flex items-center space-x-2">
+                    <span class="text-xl font-teko tracking-widest">PAINEL ADMIN</span>
+                    <span id="adminUserName" class="text-gray-400 text-sm"></span>
+                  </div>
+                  <button id="adminClose" class="text-gray-400 hover:text-white">&times;</button>
+                 </div>
+                 <div class="p-4 space-y-4">
+                   <div class="flex items-center justify-between">
+                     <div class="flex items-center space-x-2">
+                       <button id="tabAgenda" class="px-3 py-2 rounded-sm bg-amber-600 text-white font-bold">Agenda</button>
+                       <button id="tabInsights" class="px-3 py-2 rounded-sm bg-gray-800 text-gray-300 hover:text-white">Insights</button>
+                     </div>
+                     <div class="flex items-center space-x-2">
+                       <select id="filtroProfissional" class="bg-gray-900 text-white border border-gray-700 rounded px-2 py-2">
+                         <option value="">Todos</option>
+                         <option value="1">Rafa</option>
+                         <option value="2">Tteu</option>
+                       </select>
+                       <select id="filtroPeriodo" class="bg-gray-900 text-white border border-gray-700 rounded px-2 py-2">
+                         <option value="week">Semana</option>
+                         <option value="month">Últimos 30 dias</option>
+                       </select>
+                     </div>
+                   </div>
+                   <div id="agendaView" class="space-y-3">
+                     <div class="flex justify-between items-center">
+                       <div class="text-gray-400 text-sm" id="agendaIntervalo"></div>
+                       <div class="flex items-center space-x-2">
+                         <button id="btnExportCsv" class="text-sm text-gray-300 hover:text-white border border-gray-700 rounded px-3 py-1">Exportar CSV</button>
+                       </div>
+                     </div>
+                     <div id="listaAgenda" class="divide-y divide-gray-800"></div>
+                     <div id="agendaVazio" class="text-gray-500 text-center hidden">Sem agendamentos no período.</div>
+                   </div>
+                   <div id="insightsView" class="hidden space-y-4">
+                     <div class="grid grid-cols-3 gap-3">
+                       <div class="bg-black/50 border border-gray-800 rounded p-3 text-center">
+                         <div class="text-gray-400 text-xs">Receita</div>
+                         <div id="metricReceita" class="text-2xl font-bold text-white">-</div>
+                       </div>
+                       <div class="bg-black/50 border border-gray-800 rounded p-3 text-center">
+                         <div class="text-gray-400 text-xs">Agendamentos</div>
+                         <div id="metricQtd" class="text-2xl font-bold text-white">-</div>
+                       </div>
+                       <div class="bg-black/50 border border-gray-800 rounded p-3 text-center">
+                         <div class="text-gray-400 text-xs">Ticket médio</div>
+                         <div id="metricTicket" class="text-2xl font-bold text-white">-</div>
+                       </div>
+                     </div>
+                     <div class="space-y-6">
+                       <div class="bg-black/50 border border-gray-800 rounded p-3">
+                         <div class="text-gray-300 mb-2">Receita por dia</div>
+                         <canvas id="chartReceitaDia" height="120"></canvas>
+                       </div>
+                       <div class="bg-black/50 border border-gray-800 rounded p-3">
+                         <div class="text-gray-300 mb-2">Por serviço</div>
+                         <canvas id="chartServico" height="120"></canvas>
+                       </div>
+                       <div class="bg-black/50 border border-gray-800 rounded p-3">
+                         <div class="text-gray-300 mb-2">Por profissional</div>
+                         <canvas id="chartProf" height="120"></canvas>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+            `;
+            document.body.appendChild(overlay);
+            const ui = {
+              overlay,
+              bg: overlay.querySelector('#adminOverlayBg'),
+              drawer: overlay.querySelector('#adminDrawer'),
+              closeBtn: overlay.querySelector('#adminClose'),
+              tabAgenda: overlay.querySelector('#tabAgenda'),
+              tabInsights: overlay.querySelector('#tabInsights'),
+              agendaView: overlay.querySelector('#agendaView'),
+              insightsView: overlay.querySelector('#insightsView'),
+              filtroProfissional: overlay.querySelector('#filtroProfissional'),
+              filtroPeriodo: overlay.querySelector('#filtroPeriodo'),
+              listaAgenda: overlay.querySelector('#listaAgenda'),
+              agendaVazio: overlay.querySelector('#agendaVazio'),
+              agendaIntervalo: overlay.querySelector('#agendaIntervalo'),
+              exportCsv: overlay.querySelector('#btnExportCsv'),
+              metricReceita: overlay.querySelector('#metricReceita'),
+              metricQtd: overlay.querySelector('#metricQtd'),
+              metricTicket: overlay.querySelector('#metricTicket'),
+              adminUserName: overlay.querySelector('#adminUserName'),
+              open() { overlay.classList.remove('hidden'); },
+              close() { overlay.classList.add('hidden'); }
+            };
+            ui.bg.addEventListener('click', ()=>ui.close());
+            ui.closeBtn.addEventListener('click', ()=>ui.close());
+            ui.tabAgenda.addEventListener('click', ()=>{
+               ui.tabAgenda.classList.add('bg-amber-600','text-white'); ui.tabInsights.classList.remove('bg-amber-600','text-white'); ui.tabInsights.classList.add('bg-gray-800','text-gray-300');
+               ui.agendaView.classList.remove('hidden'); ui.insightsView.classList.add('hidden');
+            });
+            ui.tabInsights.addEventListener('click', ()=>{
+               ui.tabInsights.classList.add('bg-amber-600','text-white'); ui.tabAgenda.classList.remove('bg-amber-600','text-white'); ui.tabAgenda.classList.add('bg-gray-800','text-gray-300');
+               ui.insightsView.classList.remove('hidden'); ui.agendaView.classList.add('hidden');
+            });
+            adminUI = ui;
+            return ui;
+        }
+        function buildAuthHeaders(){ const t=getToken(); return { 'Content-Type':'application/json', 'Authorization':'Bearer '+t }; }
+        async function fetchAgenda(profId){ const r=await fetch('http://localhost:3000/admin/agendamentos'+(profId?('?_dummy=1&profissional_id='+encodeURIComponent(profId)):'') ,{ headers: buildAuthHeaders()}); const d=await r.json(); if(!r.ok) throw new Error(d.error||'Erro ao carregar agenda'); return d; }
+        function renderAgenda(d){ const ui=adminUI; const toBR=(ds)=>{ if(!ds) return ''; const [y,m,da]=ds.split('-'); return `${da}/${m}/${y}`; }; const toBRDateTime=(ts)=>{ if(!ts) return ''; const [date, time=''] = ts.split(' '); const hhmm = time.slice(0,5); return `${toBR(date)} (${hhmm})`; }; ui.agendaIntervalo.textContent = toBR(d.start)+' a '+toBR(d.end); ui.listaAgenda.innerHTML=''; if(!d.items.length){ ui.agendaVazio.classList.remove('hidden'); return; } ui.agendaVazio.classList.add('hidden'); d.items.sort((a,b)=>a.data.localeCompare(b.data)); d.items.forEach(a=>{ const item=document.createElement('div'); item.className='py-3 flex items-center justify-between'; const dt = toBRDateTime(a.data); item.innerHTML=`<div><div class="text-white">${dt} — ${a.servico_nome}</div><div class="text-gray-400 text-sm">${a.profissional_nome}</div></div><div class="text-amber-500 font-bold">${formatBRL(Number(a.preco||0))}</div>`; ui.listaAgenda.appendChild(item); }); }
+        let chartDia, chartServico, chartProf; function destroyCharts(){ chartDia?.destroy(); chartServico?.destroy(); chartProf?.destroy(); }
+        async function ensureChartJs(){ if(window.Chart) return; await new Promise(res=>{ const s=document.createElement('script'); s.src='https://cdn.jsdelivr.net/npm/chart.js'; s.onload=res; document.head.appendChild(s); }); }
+        async function fetchInsights(period){ const r=await fetch('http://localhost:3000/admin/insights?period='+encodeURIComponent(period||'week'), { headers: buildAuthHeaders()}); const d=await r.json(); if(!r.ok) throw new Error(d.error||'Erro ao carregar insights'); return d; }
+        async function renderInsights(d){ const ui=adminUI; ui.metricReceita.textContent = formatBRL(Number(d.totalReceita||0)); ui.metricQtd.textContent = String(d.totalAgendamentos||0); ui.metricTicket.textContent = d.totalAgendamentos? formatBRL(d.totalReceita/d.totalAgendamentos): formatBRL(0); await ensureChartJs(); destroyCharts(); const ctxDia=document.getElementById('chartReceitaDia').getContext('2d'); chartDia=new Chart(ctxDia,{ type:'bar', data:{ labels:d.porDia.map(x=>x.data.substr(5)), datasets:[{ label:'Receita', data:d.porDia.map(x=>x.receita), backgroundColor:'rgba(245,158,11,0.6)', borderColor:'rgb(245,158,11)', borderWidth:1 }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ y:{ beginAtZero:true } } }}); const ctxServ=document.getElementById('chartServico').getContext('2d'); chartServico=new Chart(ctxServ,{ type:'doughnut', data:{ labels:d.porServico.map(x=>x.nome), datasets:[{ data:d.porServico.map(x=>x.receita), backgroundColor:['#f59e0b','#10b981','#3b82f6','#ef4444','#8b5cf6','#22d3ee'] }] }, options:{ plugins:{ legend:{ position:'bottom', labels:{ color:'#d1d5db' } } } }}); const ctxProf=document.getElementById('chartProf').getContext('2d'); chartProf=new Chart(ctxProf,{ type:'bar', data:{ labels:d.porProfissional.map(x=>x.nome), datasets:[{ label:'Receita', data:d.porProfissional.map(x=>x.receita), backgroundColor:'rgba(59,130,246,0.6)', borderColor:'rgb(59,130,246)', borderWidth:1 }] }, options:{ plugins:{ legend:{ display:false } }, scales:{ x:{ ticks:{ color:'#d1d5db' } }, y:{ beginAtZero:true } } }}); }
+        function exportAgendaCsv(items){ const rows=[["Data","Serviço","Profissional","Preço"]]; items.forEach(a=>rows.push([a.data,a.servico_nome,a.profissional_nome,String(a.preco)])); const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n'); const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'}); const url=URL.createObjectURL(blob); const link=document.createElement('a'); link.href=url; link.download='agenda.csv'; link.click(); URL.revokeObjectURL(url); }
+
+        function updateAuthUI() {
+            const token = localStorage.getItem('token');
+            const loginBtn = document.getElementById('loginBtn');
+            const userArea = document.getElementById('userArea');
+            const userName = document.getElementById('userName');
+            const mobileLogin = document.getElementById('mobileLoginLink');
+            const mobileUserArea = document.getElementById('mobileUserArea');
+            const mobileUserName = document.getElementById('mobileUserName');
+            const payload = token && isTokenValid(token) ? getPayload(token) : null;
+            const adminBtn = document.getElementById('adminMenuButton');
+            if (payload && payload.nome) {
+                loginBtn?.classList.add('hidden');
+                userArea?.classList.remove('hidden');
+                if (userName) userName.textContent = payload.nome;
+                mobileLogin?.classList.add('hidden');
+                mobileUserArea?.classList.remove('hidden');
+                if (mobileUserName) mobileUserName.textContent = payload.nome;
+                if (payload.role === 'admin') {
+                    adminBtn?.classList.remove('hidden');
+                    const ui = createAdminPanel();
+                    ui.adminUserName.textContent = '• ' + payload.nome;
+                    adminBtn?.addEventListener('click', async () => {
+                        ui.open();
+                        try {
+                          const profId = ui.filtroProfissional.value;
+                          const agenda = await fetchAgenda(profId);
+                          renderAgenda(agenda);
+                          const insights = await fetchInsights(ui.filtroPeriodo.value || 'week');
+                          await renderInsights(insights);
+                        } catch(e) {}
+                    });
+                    adminUI?.filtroProfissional?.addEventListener('change', async () => {
+                        try { const agenda = await fetchAgenda(adminUI.filtroProfissional.value); renderAgenda(agenda); } catch(e) {}
+                    });
+                    adminUI?.filtroPeriodo?.addEventListener('change', async () => {
+                        try { const insights = await fetchInsights(adminUI.filtroPeriodo.value || 'week'); await renderInsights(insights); } catch(e) {}
+                    });
+                    adminUI?.exportCsv?.addEventListener('click', async () => {
+                        try { const d = await fetchAgenda(adminUI.filtroProfissional.value); exportAgendaCsv(d.items || []); } catch(e) {}
+                    });
+                } else {
+                    adminBtn?.classList.add('hidden');
+                }
+            } else {
+                localStorage.removeItem('token');
+                loginBtn?.classList.remove('hidden');
+                userArea?.classList.add('hidden');
+                mobileLogin?.classList.remove('hidden');
+                mobileUserArea?.classList.add('hidden');
+                document.getElementById('adminMenuButton')?.classList.add('hidden');
+            }
+        }
+        function logoutAndRefresh() { localStorage.removeItem('token'); updateAuthUI(); }
+        document.getElementById('logoutBtn')?.addEventListener('click', logoutAndRefresh);
+        document.getElementById('mobileLogoutBtn')?.addEventListener('click', () => { logoutAndRefresh(); mobileMenu.classList.add('hidden'); });
+        updateAuthUI();
     </script>
-
-                    <p class="text-xs text-gray-500 mt-1">Escolha o horário que melhor lhe convém</p>
-                </div>
-            </div>
-
-            <!-- Botões -->
-            <div class="mt-8 pt-8 border-t border-gray-200">
-                <div class="flex justify-between items-center">
-                    <button type="button" id="resetForm" class="btn-secondary px-6 py-3">
-                        Limpar
-                    </button>
-                    <button type="button" id="schedule" class="btn-primary px-6 py-3">
-                        Agendar Horário
-                    </button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <footer id="contato" class="bg-gray-900 text-gray-400 py-12 mt-16">
-        <div class="container mx-auto px-6 text-center">
-            <img src="https://storage.googleapis.com/gemini-generative-ai-europe-west4/prompt_images/barbearia_seu_estilo_logo_vintage_amber_black.jpeg" 
-                 alt="Logótipo Rodapé Barbearia Seu Estilo" 
-                 class="h-16 mx-auto mb-5"
-                 onerror="this.onerror=null; this.src='https://placehold.co/150x60/333333/FFFFFF?text=Logo&fontsize=16';">
-            <div class="flex justify-center space-x-4 mb-4">
-                <a href="#home" class="text-gray-400 hover:text-gray-200">Início</a>
-            </div>
-            <p class="playfair text-2xl mb-3 text-white">Barbearia Seu Estilo</p>
-            <p class="mb-1">Rua Fictícia, 123 - Bairro Imaginário, Cidade Exemplo</p>
-            <p class="mb-4">Telefone: (XX) 99999-8888 | Email: contato@seu-estilo.com</p>
-            <div class="flex justify-center space-x-5 mb-6">
-                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Facebook"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.03998C6.48 2.03998 2 6.51998 2 12.04C2 17.09 5.69 21.17 10.58 21.91V14.87H7.89V12.04H10.58V9.82998C10.58 7.15998 12.21 5.65998 14.63 5.65998C15.79 5.65998 16.98 5.84998 16.98 5.84998V8.27998H15.65C14.35 8.27998 13.99 9.05998 13.99 9.99998V12.04H16.87L16.43 14.87H13.99V21.96C18.81 21.39 22 17.12 22 12.04C22 6.51998 17.52 2.03998 12 2.03998Z"/></svg></a>
-                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Instagram"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 1.172.052 1.797.248 2.227.415.562.217.96.477 1.382.896.419.42.679.819.896 1.381.164.43.36 1.054.413 2.227.057 1.266.07 1.646.07 4.85s-.013 3.583-.07 4.85c-.052 1.172-.248 1.796-.413 2.227a3.48 3.48 0 01-.896 1.382c-.42.419-.82.679-1.382.896-.43.164-1.054.36-2.227.413-1.266.057-1.646.07-4.85.07s-3.584-.013-4.85-.07c-1.172-.052-1.796-.248-2.227-.413a3.492 3.492 0 01-.896-1.382 3.492 3.492 0 01-.896-1.382c-.164-.43-.36-1.054-.413-2.227-.057-1.266-.07-1.646-.07-4.85s.013-3.584.07-4.85c.052-1.172.248-1.797.413-2.227.217-.562.477-.96.896-1.382a3.492 3.492 0 011.381-.896c.43-.164 1.054-.36 2.227-.413C8.416 2.175 8.796 2.163 12 2.163m0-1.623C8.703.54 8.28.527 6.94.473c-1.4-.054-2.422.144-3.31.482a5.11 5.11 0 00-1.856 1.19c-.6.6-.976 1.256-1.19 1.855-.342.89-.537 1.91-.482 3.31C.527 8.28.54 8.702.54 12s-.013 3.72.013 5.06c.055 1.4.24 2.422.482 3.31.218.899.594 1.557 1.19 2.156.6.6 1.256.976 1.856 1.19.89.342 1.91.537 3.31.482 1.34.055 1.763.068 5.06.068s3.72-.013 5.06-.068c1.4-.055 2.422-.24 3.31-.482.899-.218 1.557-.594 2.156-1.19.6-.6.976-1.256 1.19-1.856.342-.89.537-1.91.482-3.31.055-1.34.068-1.763.068-5.06s-.013-3.72-.068-5.06c-.055-1.4-.24-2.422-.482-3.31a5.11 5.11 0 00-1.19-1.855c-.6-.6-1.256-.976-1.856-1.19-.89-.342-1.91-.537-3.31-.482C15.72.527 15.297.54 12 .54z"/><path d="M12 6.842a5.158 5.158 0 100 10.316A5.158 5.158 0 0012 6.842zm0 8.692a3.533 3.533 0 110-7.066 3.533 3.533 0 010 7.066z"/><circle cx="18.019" cy="5.981" r="1.25"/></svg></a>
-                <a href="#" class="text-gray-400 hover:text-amber-500 transition-colors" aria-label="Twitter"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M22.46 6C21.69 6.35 20.86 6.58 20 6.69C20.88 6.16 21.56 5.32 21.88 4.31C21.05 4.81 20.13 5.16 19.16 5.36C18.37 4.5 17.26 4 16 4C13.65 4 11.73 5.92 11.73 8.29C11.73 8.63 11.77 8.96 11.84 9.27C8.28 9.09 5.11 7.38 3 4.79C2.63 5.42 2.42 6.16 2.42 6.94C2.42 8.43 3.17 9.75 4.33 10.5C3.62 10.48 2.96 10.3 2.38 10C2.38 10.01 2.38 10.02 2.38 10.04C2.38 12.11 3.86 13.85 5.82 14.24C5.46 14.34 5.08 14.39 4.69 14.39C4.42 14.39 4.15 14.36 3.89 14.31C4.45 16.03 6.13 17.26 8.12 17.29C6.67 18.45 4.85 19.12 2.92 19.12C2.56 19.12 2.21 19.1 1.88 19.04C3.81 20.29 6.08 21 8.58 21C16.01 21 20.24 14.98 20.24 8.79C20.24 8.6 20.24 8.4 20.23 8.21C21.02 7.63 21.78 6.87 22.46 6Z"/></svg></a> 
-            </div>
-            <p class="text-xs text-gray-500">&copy; <span id="currentYear"></span> Barbearia Seu Estilo. Todos os direitos reservados.</p>
-        </div>
-    </footer>
-
-    <!-- Modais -->
-
-
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content max-w-lg text-center relative">
-             <button id="closeConfirmationModal" class="modal-close-button" aria-label="Fechar modal">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-            </button>
-            <svg class="w-16 h-16 text-green-500 mx-auto mb-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-            <h3 class="text-2xl font-semibold mb-3 text-gray-800 playfair">Agendamento Solicitado!</h3>
-            <p class="text-gray-600 mb-2">Serviço: <strong id="selectedServiceText" class="font-medium text-gray-700"></strong></p>
-            <p class="text-gray-600 mb-2">Profissional: <strong id="selectedProfText" class="font-medium text-gray-700"></strong></p>
-            <p class="text-gray-600 mb-5">Data e Hora: <strong id="selectedDateTime" class="font-medium text-gray-700"></strong></p>
-            <p class="text-sm text-gray-500 mb-6">Em breve entraremos em contacto para confirmar. Obrigado!</p>
-            <button id="okConfirmationModal" class="hero-button text-base px-8">OK</button>
-        </div>
-    </div>
-
-    <script src="../js/main.js"></script>
-</body>
-</html>
 </body>
 </html>

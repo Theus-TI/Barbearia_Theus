@@ -19,6 +19,7 @@ async function readData(filePath) {
 
 // Função para escrever os dados no arquivo JSON
 async function writeData(filePath, data) {
+    await fs.mkdir(path.dirname(filePath), { recursive: true });
     await fs.writeFile(filePath, JSON.stringify(data, null, 2));
 }
 
@@ -33,12 +34,37 @@ async function criarAgendamento(dadosAgendamento, userId) {
         console.log('Dados do agendamento recebidos:', JSON.stringify(dadosAgendamento, null, 2));
 
         if (!profissional_id || !servico_id || !data || !hora) {
-            res.writeHead(400, { 'Content-Type': 'application/json' });
-            return res.end(JSON.stringify({ error: 'Dados incompletos para o agendamento.' }));
+            const err = new Error('Dados incompletos para o agendamento.');
+            err.statusCode = 400;
+            throw err;
         }
 
         // 3. Ler agendamentos existentes e criar novo agendamento
         const agendamentos = await readData(AGENDAMENTOS_FILE);
+
+        // 3.1 Validar formato de data e hora
+        const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        const timeRegexShort = /^\d{2}:\d{2}$/;
+        const timeRegexLong = /^\d{2}:\d{2}:\d{2}$/;
+        if (!dateRegex.test(data)) {
+            const err = new Error('Formato de data inválido. Use YYYY-MM-DD.');
+            err.statusCode = 400;
+            throw err;
+        }
+        if (!timeRegexShort.test(hora) && !timeRegexLong.test(hora)) {
+            const err = new Error('Formato de hora inválido. Use HH:mm ou HH:mm:ss.');
+            err.statusCode = 400;
+            throw err;
+        }
+        const horaNormalizada = timeRegexShort.test(hora) ? `${hora}:00` : hora;
+
+        const dateTime = `${data} ${horaNormalizada}`;
+        const conflict = agendamentos.some(a => a.profissional_id === parseInt(profissional_id) && a.data_agendamento === dateTime && a.status === 'agendado');
+        if (conflict) {
+            const err = new Error('Horário indisponível para este profissional.');
+            err.statusCode = 409;
+            throw err;
+        }
         const newId = agendamentos.length > 0 ? Math.max(...agendamentos.map(a => a.id)) + 1 : 1;
 
         const newAgendamento = {
@@ -46,7 +72,7 @@ async function criarAgendamento(dadosAgendamento, userId) {
             usuario_id: userId,
             profissional_id: parseInt(profissional_id),
             servico_id: parseInt(servico_id),
-            data_agendamento: `${data} ${hora}`,
+            data_agendamento: dateTime,
             observacao: observacao || '',
             status: 'agendado',
             criado_em: new Date().toISOString()
@@ -76,12 +102,18 @@ async function listarAgendamentos(usuario_id) {
 }
 
 // Função para cancelar um agendamento
-async function cancelarAgendamento(agendamento_id) {
+async function cancelarAgendamento(agendamento_id, userId) {
     const agendamentos = await readData(AGENDAMENTOS_FILE);
     const index = agendamentos.findIndex(a => a.id == agendamento_id);
 
     if (index === -1) {
         throw new Error('Agendamento não encontrado.');
+    }
+
+    if (userId && agendamentos[index].usuario_id != userId) {
+        const err = new Error('Não autorizado a cancelar este agendamento.');
+        err.statusCode = 403;
+        throw err;
     }
 
     agendamentos[index].status = 'cancelado';
@@ -92,7 +124,7 @@ async function cancelarAgendamento(agendamento_id) {
 }
 
 // Função para listar horários disponíveis
-async function listarHorariosDisponiveis(data) {
+async function listarHorariosDisponiveis(data, profissional_id) {
     const horariosTrabalho = [
         '09:00:00', '10:00:00', '11:00:00',
         '14:00:00', '15:00:00', '16:00:00', '17:00:00', '18:00:00'
@@ -100,7 +132,7 @@ async function listarHorariosDisponiveis(data) {
 
     const agendamentos = await readData(AGENDAMENTOS_FILE);
     const agendamentosNaData = agendamentos.filter(a => 
-        a.data_agendamento.startsWith(data) && a.status === 'agendado'
+        a.data_agendamento.startsWith(data) && a.status === 'agendado' && (!profissional_id || a.profissional_id === parseInt(profissional_id))
     );
 
     const horariosOcupados = agendamentosNaData.map(a => a.data_agendamento.split(' ')[1]);

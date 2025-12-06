@@ -9,6 +9,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const observacaoInput = document.getElementById('observacao');
     const feedbackMessage = document.getElementById('feedback-message');
     const submitButton = document.getElementById('btn-agendar');
+    const listaAgendamentosEl = document.getElementById('lista-agendamentos');
 
     let horarioSelecionado = null;
 
@@ -61,10 +62,87 @@ document.addEventListener('DOMContentLoaded', () => {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'horario-btn';
-            btn.textContent = horario;
-            btn.dataset.horario = horario;
+            const label = (typeof horario === 'string' && horario.length >= 5) ? horario.slice(0,5) : horario;
+            btn.textContent = label;
+            btn.dataset.horario = horario; // mantém o valor completo (ex: 09:00:00)
             horariosContainer.appendChild(btn);
         });
+    };
+
+    const getUserIdFromToken = () => {
+        const token = localStorage.getItem('token');
+        if (!token) return null;
+        const parts = token.split('.');
+        if (parts.length !== 3) return null;
+        try {
+            const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+            return payload.id;
+        } catch (e) {
+            return null;
+        }
+    };
+
+    const renderizarAgendamentos = (agendamentos) => {
+        if (!listaAgendamentosEl) return;
+        if (!Array.isArray(agendamentos) || agendamentos.length === 0) {
+            listaAgendamentosEl.innerHTML = '<p class="text-gray-400 text-sm">Nenhum agendamento encontrado.</p>';
+            return;
+        }
+        listaAgendamentosEl.innerHTML = agendamentos.map(a => {
+            const [d, t] = String(a.data_agendamento || '').split(' ');
+            const hora = (t || '').slice(0,5);
+            const status = a.status || '';
+            return `
+                <div class="flex items-center justify-between bg-gray-900/60 border border-gray-800 p-3 rounded">
+                    <div>
+                        <div class="text-white text-sm font-semibold">${d || ''} ${hora || ''}</div>
+                        <div class="text-gray-400 text-xs">Profissional ${a.profissional_id} • Serviço ${a.servico_id} • Status: ${status}</div>
+                    </div>
+                    ${status === 'agendado' ? `<button class="px-3 py-1 text-xs rounded bg-red-600 hover:bg-red-700 text-white" data-action="cancelar" data-id="${a.id}">Cancelar</button>` : ''}
+                </div>
+            `;
+        }).join('');
+    };
+
+    const carregarAgendamentos = async () => {
+        if (!listaAgendamentosEl) return;
+        const token = localStorage.getItem('token');
+        const userId = getUserIdFromToken();
+        if (!token || !userId) {
+            listaAgendamentosEl.innerHTML = '<p class="text-gray-400 text-sm">Faça login para ver seus agendamentos.</p>';
+            return;
+        }
+        listaAgendamentosEl.innerHTML = '<p class="text-gray-400 text-sm">Carregando...</p>';
+        try {
+            const resp = await fetch(`http://localhost:3000/agendamentos/${userId}`, {
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Erro ao buscar agendamentos.');
+            renderizarAgendamentos(data);
+        } catch (e) {
+            listaAgendamentosEl.innerHTML = `<p class="text-red-500 text-sm">${e.message}</p>`;
+        }
+    };
+
+    const cancelarAgendamento = async (id) => {
+        const token = localStorage.getItem('token');
+        if (!token) {
+            exibirFeedback('Você precisa estar logado.', 'error');
+            return;
+        }
+        try {
+            const resp = await fetch(`http://localhost:3000/agendamentos/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+            const data = await resp.json();
+            if (!resp.ok) throw new Error(data.error || 'Erro ao cancelar.');
+            exibirFeedback('Agendamento cancelado.', 'success');
+            carregarAgendamentos();
+        } catch (e) {
+            exibirFeedback(e.message, 'error');
+        }
     };
 
     /**
@@ -79,8 +157,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const token = localStorage.getItem('token');
         if (!token) {
             exibirFeedback('Você precisa estar logado para agendar.', 'error');
-            // Opcional: redirecionar para a página de login
-            // window.location.href = '/login.html';
             submitButton.disabled = false;
             submitButton.textContent = 'Confirmar Agendamento';
             return;
@@ -116,10 +192,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }, 2000);
 
         } catch (error) {
-            console.error('Erro no agendamento:', error);
             exibirFeedback(error.message, 'error');
         } finally {
-            submitButton.disabled = true; // Mantém desabilitado até nova seleção
+            submitButton.disabled = true;
             submitButton.textContent = 'Confirmar Agendamento';
         }
     };
@@ -131,7 +206,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     const exibirFeedback = (message, type) => {
         feedbackMessage.textContent = message;
-        feedbackMessage.className = type;
+        feedbackMessage.className = `feedback ${type}`; // garante manter a classe base
         setTimeout(() => {
             feedbackMessage.className = 'hidden';
         }, 5000);
@@ -169,9 +244,20 @@ document.addEventListener('DOMContentLoaded', () => {
     // Atualiza o estado do botão de submit em qualquer mudança no formulário.
     form.addEventListener('input', atualizarEstadoBotao);
 
+    if (listaAgendamentosEl) {
+        listaAgendamentosEl.addEventListener('click', (e) => {
+            const btn = e.target.closest('[data-action="cancelar"]');
+            if (btn) {
+                const id = btn.dataset.id;
+                if (id) cancelarAgendamento(id);
+            }
+        });
+    }
+
     // Lida com o envio do formulário.
     form.addEventListener('submit', handleAgendamentoSubmit);
 
     // Define a data mínima para o input de data como hoje.
     dataInput.min = new Date().toISOString().split('T')[0];
+    carregarAgendamentos();
 });

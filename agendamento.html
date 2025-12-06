@@ -44,6 +44,28 @@
     </style>
 </head>
 <body class="page-bg">
+    <script>
+        (function(){
+            function isTokenValid(token) {
+                if (!token) return false;
+                const parts = token.split('.');
+                if (parts.length !== 3) return false;
+                try {
+                    const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                    if (!payload.exp) return false;
+                    return payload.exp * 1000 > Date.now();
+                } catch {
+                    return false;
+                }
+            }
+            const token = localStorage.getItem('token');
+            if (!isTokenValid(token)) {
+                // Limpa token inválido e redireciona para login
+                if (token) localStorage.removeItem('token');
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
 
     <div class="min-h-screen flex flex-col items-center justify-center py-12">
         <a href="index.html" class="text-4xl font-bold font-teko text-white tracking-wider mb-4">BARBEARIA THEUS</a>
@@ -64,8 +86,8 @@
                         <label class="block text-gray-400 text-sm font-bold mb-2" for="profissional">Profissional</label>
                         <select class="appearance-none border border-gray-700 rounded w-full py-3 px-4 bg-gray-900 text-white leading-tight focus:outline-none focus:ring-2 focus:ring-amber-600" id="profissional" name="profissional" required>
                             <option value="" disabled selected>Selecione um profissional</option>
-                            <option value="1">João "O Mestre" Silva</option>
-                            <option value="2">Pedro "O Moderno" Costa</option>
+                            <option value="1">Rafa</option>
+                            <option value="2">Tteu</option>
                         </select>
                     </div>
                 </div>
@@ -106,11 +128,193 @@
                 </div>
             </form>
         </div>
+
+        <!-- Meus Agendamentos -->
+        <div class="w-full max-w-2xl bg-black/50 backdrop-blur-lg p-6 rounded-lg border border-gray-800 mt-8">
+            <h3 class="font-teko text-3xl text-white mb-4">Meus agendamentos</h3>
+            <div id="lista-agendamentos" class="space-y-3"></div>
+        </div>
+
         <footer class="text-center text-gray-500 mt-8">
             <p>&copy; 2025 Barbearia Theus. Todos os direitos reservados.</p>
         </footer>
     </div>
 
-    <script src="js/agendamento-ui.js"></script>
+    <script>
+        // Helpers de token
+        function isTokenValid(token) {
+            if (!token) return false;
+            const parts = token.split('.');
+            if (parts.length !== 3) return false;
+            try {
+                const payload = JSON.parse(atob(parts[1].replace(/-/g, '+').replace(/_/g, '/')));
+                if (!payload.exp) return false;
+                return payload.exp * 1000 > Date.now();
+            } catch { return false; }
+        }
+        function getToken() { return localStorage.getItem('token'); }
+        function getPayload(token) { const p = token.split('.'); return JSON.parse(atob(p[1].replace(/-/g,'+').replace(/_/g,'/'))); }
+
+        // Constantes de horários (deve bater com o backend)
+        const HORARIOS_TRABALHO = [
+            '09:00:00','10:00:00','11:00:00','14:00:00','15:00:00','16:00:00','17:00:00','18:00:00'
+        ];
+
+        // Elementos
+        const emailInput = document.getElementById('email');
+        const selProf = document.getElementById('profissional');
+        const selServico = document.getElementById('servico');
+        const inpData = document.getElementById('data');
+        const gridHorarios = document.getElementById('horarios-disponiveis');
+        const btnAgendar = document.getElementById('btn-agendar');
+        const form = document.getElementById('form-agendamento');
+        const feedback = document.getElementById('feedback-message');
+        const listaAg = document.getElementById('lista-agendamentos');
+
+        let selectedHora = null;
+        function showFeedback(msg, ok){
+            feedback.textContent = msg;
+            feedback.className = 'feedback ' + (ok ? 'success' : 'error');
+            setTimeout(()=>{ feedback.className = 'hidden'; }, 3000);
+        }
+        function formatHora(h){ return h ? h.slice(0,5) : ''; }
+        function formatDateTime(dt){ // dt: 'YYYY-MM-DD HH:mm:ss'
+            if(!dt) return '';
+            const [d,t] = dt.split(' ');
+            return `${d} ${t.slice(0,5)}`;
+        }
+        function buildAuthHeaders(){ return { 'Content-Type':'application/json', 'Authorization':'Bearer '+getToken() }; }
+
+        function renderHorarios(available){
+            gridHorarios.innerHTML = '';
+            const set = new Set(available);
+            selectedHora = null;
+            btnAgendar.disabled = true;
+
+            HORARIOS_TRABALHO.forEach(h => {
+                const btn = document.createElement('button');
+                const disponivel = set.has(h);
+                btn.type = 'button';
+                btn.dataset.slot = h;
+                btn.className = [
+                    'time-btn','px-3','py-2','text-sm','rounded','border','transition-colors','duration-150','select-none',
+                    disponivel ? 'bg-gray-800 text-gray-100 border-gray-700 hover:bg-amber-600 hover:text-white focus:outline-none focus:ring-2 focus:ring-amber-500/50' : 'bg-gray-800/40 text-gray-500 border-gray-800 cursor-not-allowed opacity-50 line-through'
+                ].join(' ');
+                btn.textContent = formatHora(h);
+                if (!disponivel) {
+                    btn.disabled = true;
+                } else {
+                    btn.addEventListener('click', () => {
+                        // limpar seleção anterior
+                        gridHorarios.querySelectorAll('button.time-btn').forEach(b=>{
+                            b.classList.remove('bg-amber-600','text-white','border-amber-500','ring-2','ring-amber-400');
+                            b.classList.add('bg-gray-800','text-gray-100','border-gray-700');
+                        });
+                        // selecionar atual
+                        btn.classList.remove('bg-gray-800','text-gray-100','border-gray-700');
+                        btn.classList.add('bg-amber-600','text-white','border-amber-500','ring-2','ring-amber-400');
+                        selectedHora = h;
+                        btnAgendar.disabled = false;
+                    });
+                }
+                gridHorarios.appendChild(btn);
+            });
+        }
+
+        async function carregarHorarios(){
+            const data = inpData.value;
+            const prof = selProf.value;
+            gridHorarios.innerHTML = '<p class="text-gray-400 col-span-full text-center p-4">Carregando horários...</p>';
+            btnAgendar.disabled = true; selectedHora = null;
+            if(!data || !prof) return;
+            try {
+                const res = await fetch(`http://localhost:3000/horarios-disponiveis?data=${encodeURIComponent(data)}&profissional_id=${encodeURIComponent(prof)}`);
+                const horarios = await res.json();
+                if(!res.ok || !Array.isArray(horarios)) throw new Error('Falha ao carregar horários');
+                renderHorarios(horarios);
+            } catch(e){
+                gridHorarios.innerHTML = '<p class="text-red-400 col-span-full text-center p-4">Erro ao carregar horários.</p>';
+            }
+        }
+
+        async function carregarMeusAgendamentos(){
+            try {
+                const token = getToken();
+                if(!token || !isTokenValid(token)) return;
+                const payload = getPayload(token);
+                const res = await fetch(`http://localhost:3000/agendamentos/${payload.id}`, { headers: buildAuthHeaders() });
+                const data = await res.json();
+                if(!res.ok) throw new Error(data.error||'Erro ao listar agendamentos');
+                listaAg.innerHTML = '';
+                if(!data.length){
+                    listaAg.innerHTML = '<div class="text-gray-500 text-center">Você ainda não possui agendamentos.</div>';
+                    return;
+                }
+                data.sort((a,b)=> a.data_agendamento.localeCompare(b.data_agendamento));
+                data.forEach(a => {
+                    const card = document.createElement('div');
+                    card.className = 'bg-black/50 border border-gray-800 rounded p-4';
+                    card.innerHTML = `<div class="text-white font-bold">${formatDateTime(a.data_agendamento)}</div>
+                        <div class="text-gray-400 text-sm">Profissional ${a.profissional_id} • Serviço ${a.servico_id} • Status: ${a.status}</div>`;
+                    listaAg.appendChild(card);
+                });
+            } catch(e){
+                // silencioso
+            }
+        }
+
+        // Prefill de email e listeners
+        document.addEventListener('DOMContentLoaded', () => {
+            const token = getToken();
+            if (token && isTokenValid(token)) {
+                const payload = getPayload(token);
+                if (payload?.email) {
+                    emailInput.value = payload.email;
+                    emailInput.readOnly = true;
+                    emailInput.classList.add('text-gray-300');
+                }
+            }
+            selProf.addEventListener('change', carregarHorarios);
+            inpData.addEventListener('change', carregarHorarios);
+            carregarHorarios();
+            carregarMeusAgendamentos();
+        });
+
+        // Submit do agendamento
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const token = getToken();
+            if(!token || !isTokenValid(token)){
+                window.location.href = 'login.html';
+                return;
+            }
+            const payload = getPayload(token);
+            const profissional_id = selProf.value;
+            const servico_id = selServico.value;
+            const data = inpData.value;
+            const observacao = document.getElementById('observacao').value;
+            if(!profissional_id || !servico_id || !data || !selectedHora){
+                showFeedback('Selecione profissional, data e horário.', false);
+                return;
+            }
+            try {
+                const res = await fetch('http://localhost:3000/agendamento', {
+                    method:'POST',
+                    headers: buildAuthHeaders(),
+                    body: JSON.stringify({ profissional_id, servico_id, data, hora: selectedHora, observacao })
+                });
+                const result = await res.json();
+                if(!res.ok) throw new Error(result.error || 'Erro ao criar agendamento');
+                showFeedback('Agendamento criado com sucesso!', true);
+                // Atualizar horários e lista
+                await carregarHorarios();
+                await carregarMeusAgendamentos();
+                form.reset();
+                emailInput.value = payload.email; // manter email preenchido
+            } catch(e){
+                showFeedback(e.message, false);
+            }
+        });
+    </script>
 </body>
 </html>

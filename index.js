@@ -11,6 +11,63 @@ const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'seu-segredo-super-secreto-para-desenvolvimento';
 const DATA_DIR = path.join(__dirname, 'data');
 const USERS_FILE = path.join(DATA_DIR, 'users.json');
+const AGENDAMENTOS_FILE = path.join(DATA_DIR, 'agendamentos.json');
+const SERVICOS = [
+    { id: 1, nome: 'Corte de Cabelo', preco: 40 },
+    { id: 2, nome: 'Design de Barba', preco: 35 },
+    { id: 3, nome: 'Combo (Cabelo + Barba)', preco: 70 },
+    { id: 4, nome: 'Tratamento Capilar', preco: 60 }
+];
+const PROFISSIONAIS = [
+    { id: 1, nome: 'Rafa' },
+    { id: 2, nome: 'Tteu' }
+];
+function getServicoInfo(id) {
+    const s = SERVICOS.find(x => x.id === parseInt(id));
+    return s || { id: parseInt(id), nome: `Serviço ${id}`, preco: 0 };
+}
+function getProfissionalInfo(id) {
+    const p = PROFISSIONAIS.find(x => x.id === parseInt(id));
+    return p || { id: parseInt(id), nome: `Profissional ${id}` };
+}
+
+async function ensureDataFiles() {
+    await fs.mkdir(DATA_DIR, { recursive: true });
+    try { await fs.access(USERS_FILE); } catch { await fs.writeFile(USERS_FILE, JSON.stringify([], null, 2)); }
+    try { await fs.access(AGENDAMENTOS_FILE); } catch { await fs.writeFile(AGENDAMENTOS_FILE, JSON.stringify([], null, 2)); }
+
+    // Seed/Migrate admin to email 'adm@adm' with password 'adm'
+    try {
+        const raw = await fs.readFile(USERS_FILE, 'utf-8');
+        const users = raw ? JSON.parse(raw) : [];
+        let admin = users.find(u => u.role === 'admin' && (u.email === 'adm' || u.email === 'adm@gmail.com' || u.email === 'adm@adm' || u.email === 'adm@adm.com'));
+        if (admin) {
+            let changed = false;
+            if (admin.email !== 'adm@adm') {
+                admin.email = 'adm@adm';
+                changed = true;
+            }
+            const hasAdmPassword = admin.senha && await bcrypt.compare('adm', admin.senha);
+            if (!hasAdmPassword) {
+                admin.senha = await bcrypt.hash('adm', 10);
+                changed = true;
+            }
+            if (changed) {
+                await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
+                console.log('Admin normalizado para email "adm@adm" com senha padrão.');
+            }
+        } else {
+            const hashed = await bcrypt.hash('adm', 10);
+            const newId = users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1;
+            users.push({ id: newId, nome: 'Administrador', email: 'adm@adm', senha: hashed, role: 'admin' });
+            await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
+            console.log('Usuário admin criado: email "adm@adm", senha "adm"');
+        }
+    } catch (e) {
+        console.error('Falha ao semear usuário admin:', e);
+    }
+}
+ensureDataFiles().catch(err => console.error('Falha ao inicializar arquivos de dados:', err));
 
 // --- Funções Auxiliares ---
 
@@ -60,7 +117,11 @@ function sendJSONResponse(res, statusCode, data) {
  */
 async function serveStaticFile(req, res) {
     const safePath = path.normalize(req.url).replace(/^(\.\.[\\/\\])+/, '');
-    let filePath = path.join(__dirname, safePath === '/' ? 'index.html' : safePath);
+    let requestPath = safePath === '/' ? 'index.html' : safePath.replace(/^[\/\\]/, '');
+    if (!path.extname(requestPath)) {
+        requestPath += '.html';
+    }
+    let filePath = path.join(__dirname, requestPath);
 
     const contentTypes = {
         '.html': 'text/html',
@@ -80,7 +141,7 @@ async function serveStaticFile(req, res) {
     } catch (error) {
         if (error.code === 'ENOENT') {
             // Tenta procurar em subdiretórios comuns se não achar na raiz
-            const subdirs = ['js', 'css', 'img'];
+            const subdirs = ['js', 'css', 'img', 'assets'];
             for (const subdir of subdirs) {
                 try {
                     const subPath = path.join(__dirname, subdir, safePath);
@@ -133,7 +194,7 @@ const server = http.createServer(async (req, res) => {
             if (!user || !await bcrypt.compare(password, user.senha)) {
                 return sendJSONResponse(res, 401, { error: 'Credenciais inválidas.' });
             }
-            const token = jwt.sign({ id: user.id, email: user.email, nome: user.nome }, JWT_SECRET, { expiresIn: '1h' });
+            const token = jwt.sign({ id: user.id, email: user.email, nome: user.nome, role: user.role || 'user' }, JWT_SECRET, { expiresIn: '1h' });
             return sendJSONResponse(res, 200, { message: 'Login bem-sucedido!', token });
         }
 
@@ -148,7 +209,7 @@ const server = http.createServer(async (req, res) => {
             }
             const hashedPassword = await bcrypt.hash(senha, 10);
             const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-            const newUser = { id: newId, nome, email, senha: hashedPassword };
+            const newUser = { id: newId, nome, email, senha: hashedPassword, role: 'user' };
             users.push(newUser);
             await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
             return sendJSONResponse(res, 201, { message: 'Usuário registrado com sucesso!' });
@@ -168,8 +229,11 @@ const server = http.createServer(async (req, res) => {
 
                 return sendJSONResponse(res, 201, resultado);
             } catch (error) {
-                 if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
                     return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado. Faça login novamente.' });
+                }
+                if (error.statusCode) {
+                    return sendJSONResponse(res, error.statusCode, { error: error.message });
                 }
                 // Log do erro no servidor para depuração
                 console.error('Erro ao processar agendamento na rota:', error);
@@ -179,15 +243,143 @@ const server = http.createServer(async (req, res) => {
         }
 
         if (pathname.startsWith('/agendamentos/') && req.method === 'GET') {
-            const usuario_id = pathname.split('/').pop();
-            const agendamentos = await listarAgendamentos(usuario_id);
-            return sendJSONResponse(res, 200, agendamentos);
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) {
+                return sendJSONResponse(res, 401, { error: 'Token de autenticação não fornecido.' });
+            }
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const usuario_id = pathname.split('/').pop();
+                if (String(decoded.id) !== String(usuario_id)) {
+                    return sendJSONResponse(res, 403, { error: 'Acesso negado.' });
+                }
+                const agendamentos = await listarAgendamentos(usuario_id);
+                return sendJSONResponse(res, 200, agendamentos);
+            } catch (error) {
+                if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                    return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado. Faça login novamente.' });
+                }
+                return sendJSONResponse(res, 500, { error: 'Erro ao listar agendamentos.' });
+            }
+        }
+
+        if (pathname.startsWith('/agendamentos/') && req.method === 'DELETE') {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) {
+                return sendJSONResponse(res, 401, { error: 'Token de autenticação não fornecido.' });
+            }
+            const agendamento_id = pathname.split('/').pop();
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                const result = await cancelarAgendamento(agendamento_id, decoded.id);
+                return sendJSONResponse(res, 200, result);
+            } catch (error) {
+                if (error.name === 'JsonWebTokenError' || error.name === 'TokenExpiredError') {
+                    return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado. Faça login novamente.' });
+                }
+                if (error.statusCode) {
+                    return sendJSONResponse(res, error.statusCode, { error: error.message });
+                }
+                return sendJSONResponse(res, 500, { error: 'Erro ao cancelar agendamento.' });
+            }
         }
         
         if (pathname === '/horarios-disponiveis' && req.method === 'GET') {
-            const { data } = parsedUrl.query;
-            const horarios = await listarHorariosDisponiveis(data);
+            const { data, profissional_id } = parsedUrl.query;
+            if (!data) {
+                return sendJSONResponse(res, 400, { error: 'Parâmetro data é obrigatório.' });
+            }
+            const horarios = await listarHorariosDisponiveis(data, profissional_id);
             return sendJSONResponse(res, 200, horarios);
+        }
+
+        // --- Rotas de Administração ---
+        if (pathname === '/admin/agendamentos' && req.method === 'GET') {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) return sendJSONResponse(res, 401, { error: 'Token de autenticação não fornecido.' });
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                if (decoded.role !== 'admin') return sendJSONResponse(res, 403, { error: 'Acesso restrito a administradores.' });
+
+                const { start, end, profissional_id } = parsedUrl.query || {};
+                function formatDate(d) { const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
+                let startStr = start; let endStr = end;
+                if (!startStr || !endStr) {
+                    const today = new Date();
+                    const day = today.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1) - day;
+                    const monday = new Date(today); monday.setDate(today.getDate() + diffToMonday);
+                    const sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
+                    startStr = startStr || formatDate(monday);
+                    endStr = endStr || formatDate(sunday);
+                }
+                const raw = JSON.parse(await fs.readFile(AGENDAMENTOS_FILE, 'utf-8'));
+                const items = raw.filter(a => a.status === 'agendado'
+                    && a.data_agendamento >= `${startStr} 00:00:00`
+                    && a.data_agendamento <= `${endStr} 23:59:59`
+                    && (!profissional_id || a.profissional_id === parseInt(profissional_id))
+                ).map(a => {
+                    const s = getServicoInfo(a.servico_id);
+                    const p = getProfissionalInfo(a.profissional_id);
+                    return { id: a.id, data: a.data_agendamento, usuario_id: a.usuario_id, profissional_id: a.profissional_id, profissional_nome: p.nome, servico_id: a.servico_id, servico_nome: s.nome, preco: s.preco, status: a.status };
+                });
+                return sendJSONResponse(res, 200, { start: startStr, end: endStr, count: items.length, items });
+            } catch (e) {
+                if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado.' });
+                return sendJSONResponse(res, 500, { error: 'Erro ao obter agenda semanal.' });
+            }
+        }
+
+        if (pathname === '/admin/insights' && req.method === 'GET') {
+            const token = req.headers.authorization?.split(' ')[1];
+            if (!token) return sendJSONResponse(res, 401, { error: 'Token de autenticação não fornecido.' });
+            try {
+                const decoded = jwt.verify(token, JWT_SECRET);
+                if (decoded.role !== 'admin') return sendJSONResponse(res, 403, { error: 'Acesso restrito a administradores.' });
+
+                const { period = 'week' } = parsedUrl.query || {};
+                function formatDate(d) { const y=d.getFullYear(); const m=String(d.getMonth()+1).padStart(2,'0'); const da=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${da}`; }
+                const today = new Date();
+                let startDate, endDate;
+                if (period === 'month') {
+                    endDate = new Date(today);
+                    startDate = new Date(today); startDate.setDate(today.getDate() - 29);
+                } else {
+                    const day = today.getDay();
+                    const diffToMonday = (day === 0 ? -6 : 1) - day;
+                    startDate = new Date(today); startDate.setDate(today.getDate() + diffToMonday);
+                    endDate = new Date(startDate); endDate.setDate(startDate.getDate() + 6);
+                }
+                const startStr = formatDate(startDate); const endStr = formatDate(endDate);
+                const raw = JSON.parse(await fs.readFile(AGENDAMENTOS_FILE, 'utf-8'));
+                const inRange = raw.filter(a => a.status === 'agendado' && a.data_agendamento >= `${startStr} 00:00:00` && a.data_agendamento <= `${endStr} 23:59:59`);
+
+                const porDiaMap = new Map();
+                for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
+                    porDiaMap.set(formatDate(d), { data: formatDate(d), receita: 0, quantidade: 0 });
+                }
+                let totalReceita = 0; let totalAgendamentos = 0;
+                const porServicoMap = new Map();
+                const porProfMap = new Map();
+                inRange.forEach(a => {
+                    const s = getServicoInfo(a.servico_id);
+                    const p = getProfissionalInfo(a.profissional_id);
+                    const dia = a.data_agendamento.split(' ')[0];
+                    const preco = s.preco || 0;
+                    totalReceita += preco; totalAgendamentos += 1;
+                    if (porDiaMap.has(dia)) { const v = porDiaMap.get(dia); v.receita += preco; v.quantidade += 1; }
+                    const ks = s.id; const kp = p.id;
+                    porServicoMap.set(ks, { servico_id: s.id, nome: s.nome, quantidade: (porServicoMap.get(ks)?.quantidade || 0) + 1, receita: (porServicoMap.get(ks)?.receita || 0) + preco });
+                    porProfMap.set(kp, { profissional_id: p.id, nome: p.nome, quantidade: (porProfMap.get(kp)?.quantidade || 0) + 1, receita: (porProfMap.get(kp)?.receita || 0) + preco });
+                });
+                const porDia = Array.from(porDiaMap.values());
+                const porServico = Array.from(porServicoMap.values());
+                const porProfissional = Array.from(porProfMap.values());
+                return sendJSONResponse(res, 200, { period, start: startStr, end: endStr, totalReceita, totalAgendamentos, porDia, porServico, porProfissional });
+            } catch (e) {
+                if (e.name === 'JsonWebTokenError' || e.name === 'TokenExpiredError') return sendJSONResponse(res, 401, { error: 'Token inválido ou expirado.' });
+                return sendJSONResponse(res, 500, { error: 'Erro ao obter insights.' });
+            }
         }
 
         // --- Servir Arquivos Estáticos ---
