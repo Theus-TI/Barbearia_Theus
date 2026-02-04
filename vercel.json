@@ -19,10 +19,10 @@
     }
   ],
   "routes": [
+    { "handle": "filesystem" },
     { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/login", "dest": "/login.html" },
     { "src": "/register", "dest": "/register.html" },
-    { "src": "/agendamento", "dest": "/agendamento.html" },
-    { "src": "/(.*)", "dest": "/$1" }
+    { "src": "/agendamento", "dest": "/agendamento.html" }
   ]
 }
