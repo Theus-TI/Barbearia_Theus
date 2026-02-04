@@ -4,14 +4,12 @@ const path = require('path');
 const url = require('url');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const { supabase } = require('./supabaseClient');
 const { criarAgendamento, listarAgendamentos, cancelarAgendamento, listarHorariosDisponiveis } = require('./agendamento.js');
 
 // --- Constantes ---
 const PORT = process.env.PORT || 3000;
 const JWT_SECRET = process.env.JWT_SECRET || 'seu-segredo-super-secreto-para-desenvolvimento';
-const DATA_DIR = path.join(__dirname, 'data');
-const USERS_FILE = path.join(DATA_DIR, 'users.json');
-const AGENDAMENTOS_FILE = path.join(DATA_DIR, 'agendamentos.json');
 const SERVICOS = [
     { id: 1, nome: 'Corte de Cabelo', preco: 40 },
     { id: 2, nome: 'Design de Barba', preco: 35 },
@@ -31,43 +29,33 @@ function getProfissionalInfo(id) {
     return p || { id: parseInt(id), nome: `Profissional ${id}` };
 }
 
-async function ensureDataFiles() {
-    await fs.mkdir(DATA_DIR, { recursive: true });
-    try { await fs.access(USERS_FILE); } catch { await fs.writeFile(USERS_FILE, JSON.stringify([], null, 2)); }
-    try { await fs.access(AGENDAMENTOS_FILE); } catch { await fs.writeFile(AGENDAMENTOS_FILE, JSON.stringify([], null, 2)); }
-
-    // Seed/Migrate admin to email 'adm@adm' with password 'adm'
+async function ensureAdminUser() {
     try {
-        const raw = await fs.readFile(USERS_FILE, 'utf-8');
-        const users = raw ? JSON.parse(raw) : [];
-        let admin = users.find(u => u.role === 'admin' && (u.email === 'adm' || u.email === 'adm@gmail.com' || u.email === 'adm@adm' || u.email === 'adm@adm.com'));
-        if (admin) {
-            let changed = false;
-            if (admin.email !== 'adm@adm') {
-                admin.email = 'adm@adm';
-                changed = true;
-            }
-            const hasAdmPassword = admin.senha && await bcrypt.compare('adm', admin.senha);
-            if (!hasAdmPassword) {
-                admin.senha = await bcrypt.hash('adm', 10);
-                changed = true;
-            }
-            if (changed) {
-                await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-                console.log('Admin normalizado para email "adm@adm" com senha padrão.');
-            }
+        const { data: existing, error: existingError } = await supabase
+            .from('users')
+            .select('id, email')
+            .eq('email', 'admin')
+            .limit(1);
+        if (existingError) {
+            console.error('Falha ao buscar admin na Supabase:', existingError);
+            return;
+        }
+        if (existing && existing.length > 0) return;
+
+        const hashed = await bcrypt.hash('admin', 10);
+        const { error: insertError } = await supabase
+            .from('users')
+            .insert({ nome: 'Administrador', email: 'admin', senha: hashed, role: 'admin' });
+        if (insertError) {
+            console.error('Falha ao criar usuário admin na Supabase:', insertError);
         } else {
-            const hashed = await bcrypt.hash('adm', 10);
-            const newId = users.length > 0 ? Math.max(...users.map(u => u.id || 0)) + 1 : 1;
-            users.push({ id: newId, nome: 'Administrador', email: 'adm@adm', senha: hashed, role: 'admin' });
-            await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
-            console.log('Usuário admin criado: email "adm@adm", senha "adm"');
+            console.log('Usuário admin criado: login "admin" e senha "admin"');
         }
     } catch (e) {
         console.error('Falha ao semear usuário admin:', e);
     }
 }
-ensureDataFiles().catch(err => console.error('Falha ao inicializar arquivos de dados:', err));
+ensureAdminUser().catch(err => console.error('Falha ao inicializar usuário admin:', err));
 
 // --- Funções Auxiliares ---
 
@@ -189,8 +177,15 @@ const server = http.createServer(async (req, res) => {
             if (!email || !password) {
                 return sendJSONResponse(res, 400, { error: 'Email e senha são obrigatórios.' });
             }
-            const users = JSON.parse(await fs.readFile(USERS_FILE, 'utf-8'));
-            const user = users.find(u => u.email === email);
+            const { data: users, error } = await supabase
+                .from('users')
+                .select('id, email, nome, senha, role')
+                .eq('email', email)
+                .limit(1);
+            if (error) {
+                return sendJSONResponse(res, 500, { error: 'Erro ao buscar usuário.' });
+            }
+            const user = users?.[0];
             if (!user || !await bcrypt.compare(password, user.senha)) {
                 return sendJSONResponse(res, 401, { error: 'Credenciais inválidas.' });
             }
@@ -203,15 +198,24 @@ const server = http.createServer(async (req, res) => {
             if (!nome || !email || !senha) {
                 return sendJSONResponse(res, 400, { error: 'Todos os campos são obrigatórios.' });
             }
-            const users = JSON.parse(await fs.readFile(USERS_FILE, 'utf-8'));
-            if (users.find(u => u.email === email)) {
+            const { data: existing, error: existingError } = await supabase
+                .from('users')
+                .select('id')
+                .eq('email', email)
+                .limit(1);
+            if (existingError) {
+                return sendJSONResponse(res, 500, { error: 'Erro ao validar email.' });
+            }
+            if (existing && existing.length > 0) {
                 return sendJSONResponse(res, 409, { error: 'Este email já está em uso.' });
             }
             const hashedPassword = await bcrypt.hash(senha, 10);
-            const newId = users.length > 0 ? Math.max(...users.map(u => u.id)) + 1 : 1;
-            const newUser = { id: newId, nome, email, senha: hashedPassword, role: 'user' };
-            users.push(newUser);
-            await fs.writeFile(USERS_FILE, JSON.stringify(users, null, 2));
+            const { error: insertError } = await supabase
+                .from('users')
+                .insert({ nome, email, senha: hashedPassword, role: 'user' });
+            if (insertError) {
+                return sendJSONResponse(res, 500, { error: 'Erro ao criar usuário.' });
+            }
             return sendJSONResponse(res, 201, { message: 'Usuário registrado com sucesso!' });
         }
 
@@ -313,12 +317,20 @@ const server = http.createServer(async (req, res) => {
                     startStr = startStr || formatDate(monday);
                     endStr = endStr || formatDate(sunday);
                 }
-                const raw = JSON.parse(await fs.readFile(AGENDAMENTOS_FILE, 'utf-8'));
-                const items = raw.filter(a => a.status === 'agendado'
-                    && a.data_agendamento >= `${startStr} 00:00:00`
-                    && a.data_agendamento <= `${endStr} 23:59:59`
-                    && (!profissional_id || a.profissional_id === parseInt(profissional_id))
-                ).map(a => {
+                let query = supabase
+                    .from('agendamentos')
+                    .select('id, data_agendamento, usuario_id, profissional_id, servico_id, status')
+                    .eq('status', 'agendado')
+                    .gte('data_agendamento', `${startStr} 00:00:00`)
+                    .lte('data_agendamento', `${endStr} 23:59:59`);
+                if (profissional_id) {
+                    query = query.eq('profissional_id', parseInt(profissional_id));
+                }
+                const { data: raw, error: queryError } = await query;
+                if (queryError) {
+                    return sendJSONResponse(res, 500, { error: 'Erro ao carregar agendamentos.' });
+                }
+                const items = (raw || []).map(a => {
                     const s = getServicoInfo(a.servico_id);
                     const p = getProfissionalInfo(a.profissional_id);
                     return { id: a.id, data: a.data_agendamento, usuario_id: a.usuario_id, profissional_id: a.profissional_id, profissional_nome: p.nome, servico_id: a.servico_id, servico_nome: s.nome, preco: s.preco, status: a.status };
@@ -351,8 +363,16 @@ const server = http.createServer(async (req, res) => {
                     endDate = new Date(startDate); endDate.setDate(startDate.getDate() + 6);
                 }
                 const startStr = formatDate(startDate); const endStr = formatDate(endDate);
-                const raw = JSON.parse(await fs.readFile(AGENDAMENTOS_FILE, 'utf-8'));
-                const inRange = raw.filter(a => a.status === 'agendado' && a.data_agendamento >= `${startStr} 00:00:00` && a.data_agendamento <= `${endStr} 23:59:59`);
+                const { data: raw, error: queryError } = await supabase
+                    .from('agendamentos')
+                    .select('data_agendamento, servico_id, profissional_id, status')
+                    .eq('status', 'agendado')
+                    .gte('data_agendamento', `${startStr} 00:00:00`)
+                    .lte('data_agendamento', `${endStr} 23:59:59`);
+                if (queryError) {
+                    return sendJSONResponse(res, 500, { error: 'Erro ao obter insights.' });
+                }
+                const inRange = raw || [];
 
                 const porDiaMap = new Map();
                 for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate()+1)) {
