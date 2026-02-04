@@ -14,6 +14,23 @@ module.exports = async (req, res) => {
       return sendJSON(res, 400, { error: 'Email e senha são obrigatórios.' });
     }
 
+    try {
+      const { data: existingAdmin, error: adminQueryError } = await supabase
+        .from('users')
+        .select('id')
+        .eq('email', 'admin')
+        .limit(1);
+
+      if (!adminQueryError && (!existingAdmin || existingAdmin.length === 0)) {
+        const hashed = await bcrypt.hash('admin', 10);
+        await supabase
+          .from('users')
+          .insert({ nome: 'Administrador', email: 'admin', senha: hashed, role: 'admin' });
+      }
+    } catch (_) {
+      // não bloqueia login
+    }
+
     const { data: users, error } = await supabase
       .from('users')
       .select('id, email, nome, senha, role')
