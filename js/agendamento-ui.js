@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', () => {
         horariosContainer.innerHTML = '<p class="placeholder">Buscando horários...</p>';
 
         try {
-            const response = await fetch(`/horarios-disponiveis?profissional_id=${profissionalId}&data=${data}`);
+            const response = await fetch(`/api/horarios-disponiveis?profissional_id=${profissionalId}&data=${data}`);
             
             if (!response.ok) {
                 const errorData = await response.json();
@@ -114,7 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         listaAgendamentosEl.innerHTML = '<p class="text-gray-400 text-sm">Carregando...</p>';
         try {
-            const resp = await fetch(`/agendamentos/${userId}`, {
+            const resp = await fetch(`/api/agendamentos/${userId}`, {
                 headers: { 'Authorization': `Bearer ${token}` }
             });
             const data = await resp.json();
@@ -132,7 +132,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return;
         }
         try {
-            const resp = await fetch(`/agendamentos/${id}`, {
+            const resp = await fetch(`/api/agendamentos/${id}`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Bearer ${token}` }
             });
@@ -171,7 +171,7 @@ document.addEventListener('DOMContentLoaded', () => {
         };
 
         try {
-            const response = await fetch('/agendamento', {
+            const response = await fetch('/api/agendamento', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

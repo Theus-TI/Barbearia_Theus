@@ -228,7 +228,7 @@
             btnAgendar.disabled = true; selectedHora = null;
             if(!data || !prof) return;
             try {
-                const res = await fetch(`/horarios-disponiveis?data=${encodeURIComponent(data)}&profissional_id=${encodeURIComponent(prof)}`);
+                const res = await fetch(`/api/horarios-disponiveis?data=${encodeURIComponent(data)}&profissional_id=${encodeURIComponent(prof)}`);
                 const horarios = await res.json();
                 if(!res.ok || !Array.isArray(horarios)) throw new Error('Falha ao carregar horários');
                 renderHorarios(horarios);
@@ -242,7 +242,7 @@
                 const token = getToken();
                 if(!token || !isTokenValid(token)) return;
                 const payload = getPayload(token);
-                const res = await fetch(`/agendamentos/${payload.id}`, { headers: buildAuthHeaders() });
+                const res = await fetch(`/api/agendamentos/${payload.id}`, { headers: buildAuthHeaders() });
                 const data = await res.json();
                 if(!res.ok) throw new Error(data.error||'Erro ao listar agendamentos');
                 listaAg.innerHTML = '';
@@ -298,7 +298,7 @@
                 return;
             }
             try {
-                const res = await fetch('/agendamento', {
+                const res = await fetch('/api/agendamento', {
                     method:'POST',
                     headers: buildAuthHeaders(),
                     body: JSON.stringify({ profissional_id, servico_id, data, hora: selectedHora, observacao })
