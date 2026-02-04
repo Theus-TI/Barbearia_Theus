@@ -1,5 +1,12 @@
 {
   "cleanUrls": true,
+  "builds": [
+    { "src": "api/**/*.js", "use": "@vercel/node" },
+    { "src": "*.html", "use": "@vercel/static" },
+    { "src": "assets/**", "use": "@vercel/static" },
+    { "src": "css/**", "use": "@vercel/static" },
+    { "src": "js/**", "use": "@vercel/static" }
+  ],
   "headers": [
     {
       "source": "/(.*)",
@@ -11,9 +18,11 @@
       ]
     }
   ],
-  "rewrites": [
-    { "source": "/login", "destination": "/login.html" },
-    { "source": "/register", "destination": "/register.html" },
-    { "source": "/agendamento", "destination": "/agendamento.html" }
+  "routes": [
+    { "src": "/api/(.*)", "dest": "/api/$1" },
+    { "src": "/login", "dest": "/login.html" },
+    { "src": "/register", "dest": "/register.html" },
+    { "src": "/agendamento", "dest": "/agendamento.html" },
+    { "src": "/(.*)", "dest": "/$1" }
   ]
 }
